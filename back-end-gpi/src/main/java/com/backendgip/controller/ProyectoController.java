@@ -137,6 +137,9 @@ public class ProyectoController {
         proyecto.setNombre(this.getNombreConcat(proyecto));
         proyecto.setEtapa(this.etapaService.getEtapaById(proyecto.getEtapa().getId()));
         proyecto.setEstadoPropuesta(this.estadoPropuestaService.getEstadoById(proyecto.getEstadoPropuesta().getId()));
+        if (!"COL".equals(proyecto.getCliente().getNomenclatura())) {
+            proyecto.setRfProyecto(null);
+        }
         if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
             return ResponseEntity.badRequest().body("¡El nombre de proyecto ya existe!");
         } else if (this.proyectoRepository.existsByCodigoAndCliente(proyecto.getCodigo(), proyecto.getCliente())) {
@@ -149,13 +152,15 @@ public class ProyectoController {
                     return this.validDatesProyecto(proyecto);
                 }
             } else if (proyecto.getEtapa().getEtapa().equalsIgnoreCase("PRP")) {
+                if (!"COL".equals(proyecto.getCliente().getNomenclatura())) {
+                    proyecto.setDirectorClient(null);
+                }
                 proyecto.setFechaAprobacion((LocalDate) null);
                 proyecto.setFechaInicio((LocalDate) null);
                 proyecto.setFechaFin((LocalDate) null);
                 proyecto.setHorasPlaneadas(1);
                 proyecto.setHorasPropuesta((Integer) null);
                 proyecto.setComponente((ComponenteDesarrollo) null);
-                proyecto.setDirectorClient((String) null);
                 proyecto.setDirectorIts((Empleado) null);
                 proyecto.setLider((Empleado) null);
             }
@@ -200,6 +205,11 @@ public class ProyectoController {
                         || !this.actividadRepository.existsByProyecto(proyecto)
                         && !this.facturacionRepository.existsByProyecto(proyecto)) {
                     this.projectDataChange(proyectoDetails, creator);
+                    if (!"COL".equals(proyectoDetails.getCliente().getNomenclatura())) {
+                        proyecto.setRfProyecto(null);
+                    }else{
+                        proyecto.setRfProyecto(proyectoDetails.getRfProyecto());
+                    }
                     proyecto.setCliente(proyectoDetails.getCliente());
                     proyecto.setCodigo(proyectoDetails.getCodigo());
                     proyecto.setEtapa(proyectoDetails.getEtapa());
@@ -239,6 +249,12 @@ public class ProyectoController {
                 log.setTabla(proyecto.getClass().toString());
                 this.logService.saveLog(log);
                 this.projectDataChange(proyectoDetails, creator);
+                if (!"COL".equals(proyectoDetails.getCliente().getNomenclatura())) {
+                    proyecto.setRfProyecto(null);
+                    proyecto.setDirectorClient(null);
+                }else{
+                    proyecto.setRfProyecto(proyectoDetails.getRfProyecto());
+                }
                 proyecto.setCliente(proyectoDetails.getCliente());
                 proyecto.setCodigo(proyectoDetails.getCodigo());
                 proyecto.setEtapa(proyectoDetails.getEtapa());

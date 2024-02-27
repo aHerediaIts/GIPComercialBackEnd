@@ -43,8 +43,10 @@ public class Proyecto implements Serializable {
 	private Integer horasPlaneadas;
 	@Column(name = "horas_propuesta")
 	private Integer horasPropuesta;
-	@Column(name = "cli")
+	@Column(name = "dir_cliente")
 	private String directorClient;
+	@Column(name = "rf_proyecto")
+	private String rfProyecto;
 	@ManyToOne
 	@JoinColumn(name = "fk_tipo_proyecto")
 	private TipoProyecto tipo;
@@ -169,6 +171,14 @@ public class Proyecto implements Serializable {
 
 	public void setDirectorClient(String directorClient) {
 		this.directorClient = directorClient;
+	}
+
+	public String getRfProyecto() {
+		return rfProyecto;
+	}
+
+	public void setRfProyecto(String rfProyecto) {
+		this.rfProyecto = rfProyecto;
 	}
 
 	public TipoProyecto getTipo() {
