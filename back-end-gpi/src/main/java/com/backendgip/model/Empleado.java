@@ -28,6 +28,8 @@ public class Empleado {
 	private String nombre;
 	@Column(name = "email")
 	private String email;
+	@Column(name = "scotiaid")
+	private String scotiaID;
 	@Column(name = "nombre_usuario")
 	private String nombreUsuario;
 	private String password;
@@ -47,11 +49,14 @@ public class Empleado {
 	public Empleado() {
 	}
 
-	public Empleado(String numeroDoc, String nombre, String email, String nombreUsuario, String password,
-			TipoDocumento tipoDoc, DependenciaEmpleado dependencia, Cargo cargo, EstadoEmpleado estado) {
+	public Empleado(Integer id, String numeroDoc, String nombre, String email, String scotiaID, String nombreUsuario,
+			String password, TipoDocumento tipoDoc, DependenciaEmpleado dependencia, Cargo cargo,
+			EstadoEmpleado estado) {
+		this.id = id;
 		this.numeroDoc = numeroDoc;
 		this.nombre = nombre;
 		this.email = email;
+		this.scotiaID = scotiaID;
 		this.nombreUsuario = nombreUsuario;
 		this.password = password;
 		this.tipoDoc = tipoDoc;
@@ -90,6 +95,14 @@ public class Empleado {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getScotiaID() {
+		return scotiaID;
+	}
+
+	public void setScotiaID(String scotiaID) {
+		this.scotiaID = scotiaID;
 	}
 
 	public String getNombreUsuario() {
@@ -140,12 +153,14 @@ public class Empleado {
 		this.estado = estado;
 	}
 
+	@Override
 	public String toString() {
-		return "Empleado [id=" + this.id + ", numeroDoc=" + this.numeroDoc + ", nombre=" + this.nombre + ", email="
-				+ this.email + ", nombreUsuario=" + this.nombreUsuario + ", password=" + this.password + ", tipoDoc="
-				+ this.tipoDoc + ", dependencia="
-				+ Optional.ofNullable(this.dependencia != null ? this.dependencia.getDependencia() : null).orElse(null) + ", cargo="
-				+ Optional.ofNullable(this.cargo != null ? this.cargo.getCargo() : null).orElse(null) + ", estado="
-				+ Optional.ofNullable(this.estado != null ? this.estado.getEstado() : null).orElse(null) + "]";
+		return "Empleado [id=" + id + ", numeroDoc=" + numeroDoc + ", nombre=" + nombre + ", email=" + email
+				+ ", scotiaID=" + scotiaID + ", nombreUsuario=" + nombreUsuario + ", password=" + password
+				+ ", tipoDoc=" + tipoDoc + ", dependencia=" + dependencia + ", cargo=" + cargo + ", estado=" + estado
+				+ "]";
 	}
+
+	
+
 }

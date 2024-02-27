@@ -40,12 +40,15 @@ public class Cliente implements Serializable {
     @ManyToOne
     @JoinColumn(name = "fk_empleado")
     private Empleado gerenteCuenta;
+    @Column(name = "validar_id_recurso")
+    private Integer validadorIdRecurso;
 
     public Cliente() {
     }
 
-    public Cliente(String nit, String nomenclatura, String nombre, LocalDate fechaCreacion, EstadoCliente estado,
-                   SectorCliente sector, Empleado gerenteCuenta) {
+    public Cliente(Integer id, String nit, String nomenclatura, String nombre, LocalDate fechaCreacion,
+            EstadoCliente estado, SectorCliente sector, Empleado gerenteCuenta, Integer validadorIdRecurso) {
+        this.id = id;
         this.nit = nit;
         this.nomenclatura = nomenclatura;
         this.nombre = nombre;
@@ -53,7 +56,10 @@ public class Cliente implements Serializable {
         this.estado = estado;
         this.sector = sector;
         this.gerenteCuenta = gerenteCuenta;
+        this.validadorIdRecurso = validadorIdRecurso;
     }
+
+
 
     public Integer getId() {
         return this.id;
@@ -119,11 +125,20 @@ public class Cliente implements Serializable {
         this.gerenteCuenta = gerenteCuenta;
     }
 
-    public String toString() {
-        return "Cliente [id=" + this.id + ", nit=" + this.nit + ", nomenclatura=" + this.nomenclatura + ", nombre="
-                + this.nombre + ", fechaCreacion=" + this.fechaCreacion + ", estado="
-                + Optional.ofNullable(this.estado != null ? this.estado.getEstado() : null).orElse(null) + ", sector="
-                + Optional.ofNullable(this.sector != null ? this.sector.getSector() : null).orElse(null) + ", gerenteCuenta="
-                + Optional.ofNullable(this.gerenteCuenta != null ? this.gerenteCuenta.getNombre() : null).orElse(null) + "]";
+    public Integer getValidadorIdRecurso() {
+        return validadorIdRecurso;
     }
+
+    public void setValidadorIdRecurso(Integer validadorIdRecurso) {
+        this.validadorIdRecurso = validadorIdRecurso;
+    }
+
+    @Override
+    public String toString() {
+        return "Cliente [id=" + id + ", nit=" + nit + ", nomenclatura=" + nomenclatura + ", nombre=" + nombre
+                + ", fechaCreacion=" + fechaCreacion + ", estado=" + estado + ", sector=" + sector + ", gerenteCuenta="
+                + gerenteCuenta + ", validadorIdRecurso=" + validadorIdRecurso + "]";
+    }
+
+    
 }
