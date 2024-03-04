@@ -126,6 +126,7 @@ public class EmpleadoController {
 			this.logService.saveLog(log);
 			empleado.setNumeroDoc(empleadoDetails.getNumeroDoc());
 			empleado.setNombre(empleadoDetails.getNombre());
+			empleado.setScotiaID(empleadoDetails.getScotiaID());
 			empleado.setEmail(empleadoDetails.getEmail());
 			DependenciaEmpleado dependencia = this.dependenciaService
 					.getDependenciaById(empleadoDetails.getDependencia().getId());
