@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BackEndGipApplication<back-end-gip>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.backendgip.BackEndGipApplication",
+            "projectName": "back-end-gip",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
