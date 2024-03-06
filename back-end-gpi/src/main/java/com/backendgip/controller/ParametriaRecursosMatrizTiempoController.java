@@ -1,6 +1,5 @@
 package com.backendgip.controller;
 
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.PropertyMapper.SourceOperator;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +28,6 @@ import com.backendgip.model.EspecialidadRecurso;
 import com.backendgip.service.EspecialidadRecursoService;
 import com.backendgip.model.PerfilesRecurso;
 import com.backendgip.service.PerfilesRecursoService;
-
 
 @RestController
 @Transactional
@@ -55,78 +54,63 @@ public class ParametriaRecursosMatrizTiempoController {
         return this.parametriaRecursosMatrizTiempoService.getParametriaRecursos();
     }
 
-    @GetMapping({ "/parametriaRecursosMatrizTiempo/search/{id}"})
-    public ParametriaRecursosMatrizTiempo findByParametriaRecursosById(@PathVariable Integer id){
+    @GetMapping({ "/parametriaRecursosMatrizTiempo/search/{id}" })
+    public ParametriaRecursosMatrizTiempo findByParametriaRecursosById(@PathVariable Integer id) {
         ParametriaRecursosMatrizTiempo recurso = new ParametriaRecursosMatrizTiempo();
         recurso = this.parametriaRecursosMatrizTiempoService.findById(id);
         return recurso;
     }
 
-    @GetMapping({ "/parametriaRecursosMatrizTiempo/EspecialidadRecurso" })
-    public List<EspecialidadRecurso> getEspecialidadesRecursos(){
-        return this.especialidadRecursoService.getEspecialidadRecursos();
-    }
-    
-    @GetMapping({ "/parametriaRecursosMatrizTiempo/PerfilesRecurso/{id_especialidad}" })
-    public List<PerfilesRecurso> getPerfilRecursos(@PathVariable Integer id_especialidad){
-        List<PerfilesRecurso> getrecursos = new ArrayList<>();
-        List<PerfilesRecurso> sendrecursos = new ArrayList<>();
-        getrecursos = this.perfilesRecursoService.getPerfilesRecursos();
-        PerfilesRecurso recurso = new PerfilesRecurso();
-        System.out.println("estada"+getrecursos);
-        for(int i=0; i< getrecursos.size() ; i++){
-            recurso = getrecursos.get(i);
-            if(recurso.getFk_especialidad() == id_especialidad){
-            sendrecursos.add(recurso);
-            }
-        }
-        return sendrecursos;
-    }
-
-    @GetMapping({ "/parametriaRecursosMatrizTiempo/PerfilesRecurso" })
-    public List<PerfilesRecurso> getPerfilRecursos(){
-        return this.perfilesRecursoService.getPerfilesRecursos();
-    }
-
     @PutMapping({ "/parametriaRecursosMatrizTiempo/update/{id}" })
-	public ResponseEntity<?> updateParametriaRecurso(@PathVariable Integer id, @RequestBody ParametriaRecursosMatrizTiempo parametriaRecursosNueva) {
-        System.out.println(id);
-        System.out.println(parametriaRecursosNueva);
-		ParametriaRecursosMatrizTiempo recurso = this.parametriaRecursosMatrizTiempoService.findById(id);
-        System.out.println(recurso);
-			LogSistema log = new LogSistema();
-			log.setAccion("UPDATE");
-			log.setDescripcion(recurso.toString());
-			log.setFechaHora(new Date());
-			log.setIdAccion(recurso.getId());
-			log.setTabla(recurso.getClass().toString());
-			this.logService.saveLog(log);
-            recurso.setEspecialidad(parametriaRecursosNueva.getEspecialidad());
-            recurso.setPerfil(parametriaRecursosNueva.getPerfil());
-            recurso.setDescripcion(parametriaRecursosNueva.getDescripcion());
+    public ResponseEntity<?> updateParametriaRecurso(@PathVariable Integer id,
+            @RequestBody ParametriaRecursosMatrizTiempo parametriaRecursosNueva) {
+        try {
+            System.out.println(id);
+            System.out.println(parametriaRecursosNueva);
+            ParametriaRecursosMatrizTiempo recurso = this.parametriaRecursosMatrizTiempoService.findById(id);
+            System.out.println(recurso);
+            LogSistema log = new LogSistema();
+            log.setAccion("UPDATE");
+            log.setDescripcion(recurso.toString());
+            log.setFechaHora(new Date());
+            log.setIdAccion(recurso.getId());
+            log.setTabla(recurso.getClass().toString());
+            this.logService.saveLog(log);
+            recurso.setCliente(parametriaRecursosNueva.getCliente());
+            recurso.setEmpleado(parametriaRecursosNueva.getEmpleado());
             recurso.setTarifaHora(parametriaRecursosNueva.getTarifaHora());
             recurso.setTarifaMensual(parametriaRecursosNueva.getTarifaMensual());
-			ParametriaRecursosMatrizTiempo updatedRecurso = this.parametriaRecursosMatrizTiempoService.saveParametriaRecursos(recurso);
-			System.out.println(updatedRecurso);
+            ParametriaRecursosMatrizTiempo updatedRecurso = this.parametriaRecursosMatrizTiempoService
+                    .saveParametriaRecursos(recurso);
+            System.out.println(updatedRecurso);
             System.out.println(recurso);
             return ResponseEntity.ok(updatedRecurso);
-	}
+        } catch (Exception e) {
+            Error error = new Error("Ocurrió un error durante la actualización: " + e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping({ "/parametriaRecursosMatrizTiempo" })
     public ResponseEntity<?> saveParametriaRecursosMatrizTiempo(
             @RequestBody ParametriaRecursosMatrizTiempo parametriaRecursosNueva) {
 
-        this.parametriaRecursosMatrizTiempoService.saveParametriaRecursos(parametriaRecursosNueva);
+        try {
+            this.parametriaRecursosMatrizTiempoService.saveParametriaRecursos(parametriaRecursosNueva);
 
-        LogSistema log = new LogSistema();
-        log.setAccion("UPDATE");
-        log.setFechaHora(new Date());
-        log.setTabla(ProjectStatusReport.class.toString());
-        log.setIdAccion(parametriaRecursosNueva.getId());
-        log.setDescripcion(parametriaRecursosNueva.toString());
-        this.logService.saveLog(log);
+            LogSistema log = new LogSistema();
+            log.setAccion("CREATE");
+            log.setFechaHora(new Date());
+            log.setTabla(ProjectStatusReport.class.toString());
+            log.setIdAccion(parametriaRecursosNueva.getId());
+            log.setDescripcion(parametriaRecursosNueva.toString());
+            this.logService.saveLog(log);
 
-        return ResponseEntity.ok(parametriaRecursosNueva);
+            return ResponseEntity.ok(parametriaRecursosNueva);
+        } catch (Exception e) {
+            Error error = new Error("Ocurrió un error durante la creación: " + e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping({ "/parametriaRecursosMatrizTiempo/{id}" })

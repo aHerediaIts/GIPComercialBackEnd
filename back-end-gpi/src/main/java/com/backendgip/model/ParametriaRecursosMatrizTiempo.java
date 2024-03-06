@@ -13,21 +13,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "parametria_recursos_matriz_tiempo")
+@Table(name = "parametria_recursos")
 public class ParametriaRecursosMatrizTiempo implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @Column(name = "pk_parametria_recursos_matriz_tiempo")
+    @Column(name = "pk_parametria_recursos")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "fk_pk_especialidad")
-    private EspecialidadRecurso especialidad;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_pk_perfil")
-    private PerfilesRecurso perfil;
+    @JoinColumn(name = "fk_empleado")
+    private Empleado empleado;
 
     @Column(name = "tarifa_hora")
     private Integer tarifaHora;
@@ -35,8 +31,9 @@ public class ParametriaRecursosMatrizTiempo implements Serializable {
     @Column(name = "tarifa_mensual")
     private Integer tarifaMensual;
     
-    @Column(name = "descripcion")
-    private String descripcion;
+    @ManyToOne
+    @JoinColumn(name = "fk_cliente")
+    private Cliente cliente;
 
 
     public ParametriaRecursosMatrizTiempo() {
@@ -44,20 +41,6 @@ public class ParametriaRecursosMatrizTiempo implements Serializable {
 
     public ParametriaRecursosMatrizTiempo(Integer id) {
         this.id = id;
-    }
-
-    public ParametriaRecursosMatrizTiempo(Integer id, EspecialidadRecurso especialidad, PerfilesRecurso perfil, Integer tarifaHora, Integer tarifaMensual,
-            String descripcion) {
-        this.id = id;
-        this.especialidad = especialidad;
-        this.perfil = perfil;
-        this.tarifaHora = tarifaHora;
-        this.tarifaMensual = tarifaMensual;
-        this.descripcion = descripcion;
-    }
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
     }
 
     public Integer getId() {
@@ -68,20 +51,12 @@ public class ParametriaRecursosMatrizTiempo implements Serializable {
         this.id = id;
     }
 
-    public EspecialidadRecurso getEspecialidad() {
-        return especialidad;
+    public Empleado getEmpleado() {
+        return empleado;
     }
 
-    public void setEspecialidad(EspecialidadRecurso especialidad) {
-        this.especialidad = especialidad;
-    }
-
-    public PerfilesRecurso getPerfil() {
-        return perfil;
-    }
-
-    public void setPerfil(PerfilesRecurso perfil) {
-        this.perfil = perfil;
+    public void setEmpleado(Empleado empleado) {
+        this.empleado = empleado;
     }
 
     public Integer getTarifaHora() {
@@ -100,19 +75,27 @@ public class ParametriaRecursosMatrizTiempo implements Serializable {
         this.tarifaMensual = tarifaMensual;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public ParametriaRecursosMatrizTiempo(Integer id, Empleado empleado, Integer tarifaHora, Integer tarifaMensual,
+            Cliente cliente) {
+        this.id = id;
+        this.empleado = empleado;
+        this.tarifaHora = tarifaHora;
+        this.tarifaMensual = tarifaMensual;
+        this.cliente = cliente;
     }
 
     @Override
     public String toString() {
-        return "ParametriaRecursosMatrizTiempo [id=" + id + ", especialidad=" + especialidad + ", perfil=" + perfil
-                + ", tarifaHora=" + tarifaHora + ", tarifaMensual=" + tarifaMensual + ", descripcion=" + descripcion
-                + "]";
+        return "ParametriaRecursosMatrizTiempo [id=" + id + ", empleado=" + empleado + ", tarifaHora=" + tarifaHora
+                + ", tarifaMensual=" + tarifaMensual + ", cliente=" + cliente + "]";
     }
     
 }
