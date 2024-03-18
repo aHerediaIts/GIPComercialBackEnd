@@ -149,7 +149,7 @@ public class ProyectoController {
         proyecto.setNombre(this.getNombreConcat(proyecto));
         proyecto.setEtapa(this.etapaService.getEtapaById(proyecto.getEtapa().getId()));
         proyecto.setEstadoPropuesta(this.estadoPropuestaService.getEstadoById(proyecto.getEstadoPropuesta().getId()));
-        if (!"COL".equals(proyecto.getCliente().getNomenclatura())) {
+        if (proyecto.getRfProyecto() == null || proyecto.getRfProyecto().trim().isEmpty()) {
             proyecto.setRfProyecto(null);
         }
         if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
@@ -164,7 +164,7 @@ public class ProyectoController {
                     return this.validDatesProyecto(proyecto);
                 }
             } else if (proyecto.getEtapa().getEtapa().equalsIgnoreCase("PRP")) {
-                if (!"COL".equals(proyecto.getCliente().getNomenclatura())) {
+                if (proyecto.getDirectorClient() == null || proyecto.getDirectorClient().trim().isEmpty()) {
                     proyecto.setDirectorClient(null);
                 }
                 proyecto.setFechaAprobacion((LocalDate) null);
@@ -210,6 +210,7 @@ public class ProyectoController {
         } else {
             Proyecto updatedProyecto = null;
             LogSistema log;
+
             if (proyectoDetails.getEtapa().getEtapa().equalsIgnoreCase("CRN")) {
                 if (this.validDatesProyecto(proyectoDetails) != null) {
                     return this.validDatesProyecto(proyectoDetails);
@@ -217,7 +218,7 @@ public class ProyectoController {
                         || !this.actividadRepository.existsByProyecto(proyecto)
                                 && !this.facturacionRepository.existsByProyecto(proyecto)) {
                     this.projectDataChange(proyectoDetails, creator);
-                    if (!"COL".equals(proyectoDetails.getCliente().getNomenclatura())) {
+                    if (proyectoDetails.getRfProyecto() == null || proyectoDetails.getRfProyecto().trim().isEmpty()) {
                         proyecto.setRfProyecto(null);
                     } else {
                         proyecto.setRfProyecto(proyectoDetails.getRfProyecto());
@@ -261,12 +262,19 @@ public class ProyectoController {
                 log.setTabla(proyecto.getClass().toString());
                 this.logService.saveLog(log);
                 this.projectDataChange(proyectoDetails, creator);
-                if (!"COL".equals(proyectoDetails.getCliente().getNomenclatura())) {
-                    proyecto.setRfProyecto(null);
+                
+                if (proyectoDetails.getDirectorClient() == null || proyectoDetails.getDirectorClient().trim().isEmpty()){
                     proyecto.setDirectorClient(null);
+                }else{
+                    proyecto.setDirectorClient(proyectoDetails.getDirectorClient());
+                }
+
+                if (proyectoDetails.getRfProyecto() == null || proyectoDetails.getRfProyecto().trim().isEmpty()) {
+                    proyecto.setRfProyecto(null);
                 } else {
                     proyecto.setRfProyecto(proyectoDetails.getRfProyecto());
                 }
+
                 proyecto.setCliente(proyectoDetails.getCliente());
                 proyecto.setCodigo(proyectoDetails.getCodigo());
                 proyecto.setEtapa(proyectoDetails.getEtapa());
@@ -281,7 +289,6 @@ public class ProyectoController {
                 proyecto.setHorasPlaneadas(1);
                 proyecto.setHorasPropuesta((Integer) null);
                 proyecto.setComponente((ComponenteDesarrollo) null);
-                proyecto.setDirectorClient((String) null);
                 proyecto.setDirectorIts((Empleado) null);
                 proyecto.setLider((Empleado) null);
                 updatedProyecto = this.proyectoService.saveProyecto(proyecto);
