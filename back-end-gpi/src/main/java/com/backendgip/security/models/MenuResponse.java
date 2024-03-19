@@ -43,7 +43,22 @@ public class MenuResponse {
 	@Override
 	public String toString() {
 		String retorno="{\"label\":\"" + label + "\", \"icon\":\"" + icon + "\", \"link\":\"" + link+"\"";
-		return retorno +=(subMenus.size()>0)? ", \"subMenus\":[{\"subMenuItems\":" + subMenus + "}]}":"}";					
+		//return retorno +=(subMenus.size()>0)? ", \"subMenus\":[{\"subMenuItems\":" + subMenus + "}]}":"}";			
+		
+		if (subMenus.size() > 0) {
+			retorno += ", \"subItems\":[";
+			for (int i = 0; i < subMenus.size(); i++) {
+				retorno += subMenus.get(i).toString(); 
+				if (i < subMenus.size() - 1) {
+					retorno += ","; 
+				}
+			}
+			retorno += "]";
+		}
+	
+		retorno += "}";
+		return retorno;
+
 	}
 	
 }

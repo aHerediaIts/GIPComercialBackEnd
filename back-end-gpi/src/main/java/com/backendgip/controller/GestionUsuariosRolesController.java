@@ -249,6 +249,11 @@ public class GestionUsuariosRolesController {
 	        List<Submenu> submenu = submenuService.Listar();
 	        
 	        submenu.forEach(sub->{
+
+				if(sub.getLabel().equalsIgnoreCase("INICIO")){
+					sub.setSeleccionado(true);
+				}
+
 	        	sub.getItems().forEach(item->{
 	        		item.setSubmenu(null);
 	        	});

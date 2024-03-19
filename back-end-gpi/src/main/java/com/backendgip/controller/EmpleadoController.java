@@ -16,6 +16,8 @@ import com.backendgip.repository.EspecialidadRepository;
 import com.backendgip.repository.NovedadRepository;
 import com.backendgip.repository.RecursoActividadRepository;
 import com.backendgip.repository.ReporteTiempoRepository;
+import com.backendgip.security.impl.UsuarioService;
+import com.backendgip.security.models.Usuario;
 import com.backendgip.service.CargoService;
 import com.backendgip.service.DependenciaEmpleadoService;
 import com.backendgip.service.EmpleadoService;
@@ -23,7 +25,9 @@ import com.backendgip.service.EstadoEmpleadoService;
 import com.backendgip.service.LogSistemaService;
 import com.backendgip.service.RecursoActividadService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -79,6 +84,9 @@ public class EmpleadoController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private UsuarioService usuarioService;
+
 	public EmpleadoController() {
 	}
 
@@ -88,15 +96,26 @@ public class EmpleadoController {
 	}
 
 	@PostMapping({ "/empleados" })
-	public ResponseEntity<?> saveEmpleado(@RequestBody Empleado empleado) {
-		if (this.empleadoRepository.existsByEmail(empleado.getEmail())) {
+	public ResponseEntity<?> saveEmpleado(@RequestBody EmpleadoRolSave empleadoRol) throws Exception {
+		 LocalDate fechaDate = LocalDate.now(ZoneId.of("America/Bogota"));  
+
+		if (this.empleadoRepository.existsByEmail(empleadoRol.empleado.getEmail())) {
 			return ResponseEntity.badRequest().body(new ResourceAlreadyExistsException("Correo existente"));
 		} else {
+
+
 			EstadoEmpleado estado = this.estadoService.getEstadoById(1);
-			empleado.setEstado(estado);
-			empleado.setNombreUsuario(empleado.getEmail());
-			empleado.setPassword(this.passwordEncoder.encode(empleado.getEmail()));
-			Empleado createdEmpleado = this.empleadoService.saveEmpleado(empleado);
+			empleadoRol.empleado.setEstado(estado);
+			empleadoRol.empleado.setNombreUsuario(empleadoRol.empleado.getEmail());
+			empleadoRol.empleado.setPassword(this.passwordEncoder.encode(empleadoRol.empleado.getEmail()));
+			Empleado createdEmpleado = this.empleadoService.saveEmpleado(empleadoRol.empleado);
+
+			Usuario usuario = new Usuario(createdEmpleado,createdEmpleado.getPassword(),createdEmpleado.getNombreUsuario(),createdEmpleado.getEmail(),true,fechaDate,empleadoRol.getUsuarioRoles());
+            usuario.getUsuarioRoles().get(0).setUsuario(usuario);
+
+			usuarioService.guardarUsuario(usuario);
+
+
 			LogSistema log = new LogSistema();
 			log.setAccion("CREATE");
 			log.setFechaHora(new Date(Calendar.getInstance().getTime().getTime()));
@@ -108,13 +127,37 @@ public class EmpleadoController {
 		}
 	}
 
+	@GetMapping({ "/empleados/empleadoRol/{id}" })
+	public ResponseEntity<EmpleadoRolSave> getEmpleadoRolById(@PathVariable Integer id) throws UsernameNotFoundException, Exception {
+		Usuario usuario = usuarioService.buscaPorEmpleadoAsociado(id) ;
+		EmpleadoRolSave empleadoRol = new EmpleadoRolSave();
+
+		empleadoRol.setEmpleado((Empleado) this.empleadoRepository.findById(id).orElseThrow(() -> {
+			return new ResourceNotFoundException("ID " + id + " NO ENCONTRADO");
+		}));
+
+		empleadoRol.setIdRol(usuario.getUsuarioRoles().get(0).getRol().getRolId().intValue());
+		empleadoRol.setUsuarioRolId(usuario.getUsuarioRoles().get(0).getUsuarioRolId().intValue());
+		return ResponseEntity.ok(empleadoRol);
+	}
+
+
 	@PutMapping({ "/empleados/{id}" })
-	public ResponseEntity<?> updateEmpleado(@PathVariable Integer id, @RequestBody Empleado empleadoDetails) {
+	public ResponseEntity<?> updateEmpleado(@PathVariable Integer id, @RequestBody EmpleadoRolSave empleadoDetails) throws Exception {
 		Empleado empleado = (Empleado) this.empleadoRepository.findById(id).orElseThrow(() -> {
 			return new ResourceNotFoundException("No se ha encontrado el recurso solicitado" + id);
 		});
-		if (this.empleadoRepository.existsByEmail(empleadoDetails.getEmail())
-				&& empleado.getId() != empleadoDetails.getId()) {
+
+		Usuario usuario = usuarioService.buscaPorEmpleadoAsociado(id);
+		usuario.setUserName(empleadoDetails.empleado.getNombreUsuario());
+        usuario.setCorreo(empleadoDetails.empleado.getEmail());    
+		usuario.setUsuarioRoles(empleadoDetails.getUsuarioRoles());
+		usuario.getUsuarioRoles().get(0).setUsuario(usuario);
+		usuarioService.guardarUsuario(usuario);
+
+
+		if (this.empleadoRepository.existsByEmail(empleadoDetails.empleado.getEmail())
+				&& empleado.getId() != empleadoDetails.empleado.getId()) {
 			return ResponseEntity.badRequest().body(new ResourceAlreadyExistsException("Correo existente"));
 		} else {
 			LogSistema log = new LogSistema();
@@ -124,16 +167,16 @@ public class EmpleadoController {
 			log.setIdAccion(empleado.getId());
 			log.setTabla(empleado.getClass().toString());
 			this.logService.saveLog(log);
-			empleado.setNumeroDoc(empleadoDetails.getNumeroDoc());
-			empleado.setNombre(empleadoDetails.getNombre());
-			empleado.setScotiaID(empleadoDetails.getScotiaID());
-			empleado.setEmail(empleadoDetails.getEmail());
+			empleado.setNumeroDoc(empleadoDetails.empleado.getNumeroDoc());
+			empleado.setNombre(empleadoDetails.empleado.getNombre());
+			empleado.setScotiaID(empleadoDetails.empleado.getScotiaID());
+			empleado.setEmail(empleadoDetails.empleado.getEmail());
 			DependenciaEmpleado dependencia = this.dependenciaService
-					.getDependenciaById(empleadoDetails.getDependencia().getId());
+					.getDependenciaById(empleadoDetails.empleado.getDependencia().getId());
 			empleado.setDependencia(dependencia);
-			Cargo cargo = this.cargoService.getCargoById(empleadoDetails.getCargo().getId());
+			Cargo cargo = this.cargoService.getCargoById(empleadoDetails.empleado.getCargo().getId());
 			empleado.setCargo(cargo);
-			EstadoEmpleado estado = this.estadoService.getEstadoById(empleadoDetails.getEstado().getId());
+			EstadoEmpleado estado = this.estadoService.getEstadoById(empleadoDetails.empleado.getEstado().getId());
 			empleado.setEstado(estado);
 			empleado.setNombreUsuario(empleado.getEmail());
 			empleado.setPassword(this.passwordEncoder.encode(empleado.getEmail()));

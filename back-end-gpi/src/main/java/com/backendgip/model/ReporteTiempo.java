@@ -46,19 +46,37 @@ public class ReporteTiempo implements Serializable {
 	private ActividadAsignada actividad;
 	private String asignador;
 
+	@Column(name = "rango_hora_desde")
+	private Integer rangoHoraDesde;
+
+	
+	@Column(name = "rango_hora_Hasta")
+	private Integer rangoHoraHasta;
+
 	public ReporteTiempo() {
 	}
 
-	public ReporteTiempo(LocalDate fecha, Integer horas, String justificacion, Proyecto proyecto,
-			EstadoReporteTiempo estado, Empleado empleado, ActividadAsignada actividad) {
+
+
+	public ReporteTiempo(Integer id, LocalDate fecha, Integer horas, Integer aprobador, Date fechaA,
+			String justificacion, Proyecto proyecto, EstadoReporteTiempo estado, Empleado empleado,
+			ActividadAsignada actividad, String asignador, Integer rangoHoraDesde, Integer rangoHoraHasta) {
+		this.id = id;
 		this.fecha = fecha;
 		this.horas = horas;
+		this.aprobador = aprobador;
+		this.fechaA = fechaA;
 		this.justificacion = justificacion;
 		this.proyecto = proyecto;
 		this.estado = estado;
 		this.empleado = empleado;
 		this.actividad = actividad;
+		this.asignador = asignador;
+		this.rangoHoraDesde = rangoHoraDesde;
+		this.rangoHoraHasta = rangoHoraHasta;
 	}
+
+
 
 	public Integer getId() {
 		return this.id;
@@ -147,6 +165,24 @@ public class ReporteTiempo implements Serializable {
 	public void setAsignador(String asignador) {
 		this.asignador = asignador;
 	}
+
+	public Integer getRangoHoraDesde() {
+		return rangoHoraDesde;
+	}
+
+	public void setRangoHoraDesde(Integer rangoHoraDesde) {
+		this.rangoHoraDesde = rangoHoraDesde;
+	}
+
+	public Integer getRangoHoraHasta() {
+		return rangoHoraHasta;
+	}
+
+	public void setRangoHoraHasta(Integer rangoHoraHasta) {
+		this.rangoHoraHasta = rangoHoraHasta;
+	}
+
+
 
 	public String toString() {
 		return "ReporteTiempo [id=" + this.id + ", fecha=" + this.fecha + ", horas=" + this.horas + ", aprobador="

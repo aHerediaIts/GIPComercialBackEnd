@@ -105,7 +105,7 @@ public class Item {
 
 	@Override
 	public String toString() {
-		return "{\"isTitle\":" + isTitle + ", \"label\":\"" + label + "\", \"link\":\"" + link + "\"}";
+		return "{\"label\":\"" + label + "\", \"link\":\"" + link + "\"}";
 	}
 
 

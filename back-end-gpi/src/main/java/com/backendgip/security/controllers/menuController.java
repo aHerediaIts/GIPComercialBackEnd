@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = {"*"})
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/api/menu")
 public class menuController {
 	
 	 private static final Logger logger = LoggerFactory.getLogger(menuController.class);
@@ -40,18 +41,20 @@ public class menuController {
 	 private ArmaMenuRol armaMenu;
 	
 
-	@GetMapping("/consultarMenu")
-	public ResponseEntity<?> consultarMenu(HttpServletRequest request){
+	@GetMapping("/consultarMenu/{idEmpleado}")
+	public ResponseEntity<?> consultarMenu(HttpServletRequest request, @PathVariable Integer idEmpleado){
 
 		logger.info("ENTROOOOOOOOOOOOÓ");
 		HashMap<String, Object>response= new HashMap<String, Object>();
 		List<MenuResponse> menuResponse =new ArrayList<>();
-		String nombreUsuario= "AHEREDIA";
 		Usuario usuario;
 
 		try {
-			if(nombreUsuario!=null) {
-			usuario=usuarioService.buscarPorusername(nombreUsuario);
+			if(idEmpleado!=null) {
+			usuario=usuarioService.buscaPorEmpleadoAsociado(idEmpleado);
+			System.out.println("USUARIO ENCONTRADOOOOOOOOOO");
+            System.out.println(usuario.getUsername());
+
 			menuResponse=armaMenu.armarMenu(usuario.getUsuarioRoles().get(0).getRol());
 			if(menuResponse.size()==0) {
 				response.put("error","Usuario sin opciones asignadas");

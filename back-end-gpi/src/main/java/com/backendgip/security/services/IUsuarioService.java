@@ -7,8 +7,8 @@ import com.backendgip.security.models.Usuario;
 public interface IUsuarioService {
 	
 	public Usuario guardarUsuario(Usuario usuario) throws Exception;
-	
-	public Usuario buscarPorusername(String username) throws UsernameNotFoundException;
+
+	public Usuario buscaPorEmpleadoAsociado(Integer idEmpleado) throws UsernameNotFoundException;
 	
 	public ArrayList<Usuario> listar() throws Exception;
 	

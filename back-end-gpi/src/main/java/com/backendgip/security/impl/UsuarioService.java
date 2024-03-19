@@ -21,11 +21,9 @@ public class UsuarioService implements IUsuarioService{
 		return usuarioDao.save(usuario);
 	}
 
-
 	@Override
-	public Usuario buscarPorusername(String username) throws UsernameNotFoundException {
-		System.out.println("hasdhas");
-		return usuarioDao.findByUsername(username);
+	public Usuario buscaPorEmpleadoAsociado(Integer idEmpleado) throws UsernameNotFoundException{ 
+		return usuarioDao.findByEmpleadoAsociadoId(idEmpleado);
 	}
 
 

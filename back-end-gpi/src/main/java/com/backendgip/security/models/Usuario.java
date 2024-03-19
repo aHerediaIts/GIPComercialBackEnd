@@ -3,6 +3,7 @@ package com.backendgip.security.models;
 
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +14,8 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.backendgip.model.Empleado;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +23,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -35,12 +40,11 @@ public class Usuario implements Serializable{
 	@Column(name="idUsuario")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long idUsuario;
+
+	@ManyToOne
+	@JoinColumn(name="fkEmpleadoAsociado")
+	private Empleado empleadoAsociado;
 	
-	@Column(name="nombre")
-	private String nombre;
-	
-	@Column(name="apellido")
-	private String apellido;
 	
 	@Column(name="clave")
 	private String password;
@@ -55,58 +59,56 @@ public class Usuario implements Serializable{
 	private boolean enabled;
 	
 	@Column(name="fechaCreacion")
-	private LocalDateTime fechaCreacion;
+	private LocalDate fechaCreacion;
 	
-	@Column(name="cambiarClave")
-	private boolean cambiarClave;
-	
-	@Column(name="fechaCambioclave")
-	private LocalDateTime fechaCambioclave;	
-	
-	@Column(name="numeroDocumento")
-	String numeroDocumento;
-
 
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "usuario")
     private List<UsuarioRol> usuarioRoles;
 	
 	public Usuario() {
 	}
-	public Usuario(long idUsuario, String nombre, String apellido, String password, String usuario,String correo,boolean enabled,LocalDateTime fechaCambioclave,boolean cambiarClave,LocalDateTime fechaCreacion,String numeroDocumento) {
 
 
+	public Usuario(long idUsuario, Empleado empleadoAsociado, String password, String username, String correo,
+			boolean enabled, LocalDate fechaCreacion, List<UsuarioRol> usuarioRoles) {
 		this.idUsuario = idUsuario;
-		this.nombre = nombre;
-		this.apellido = apellido;
+		this.empleadoAsociado = empleadoAsociado;
 		this.password = password;
-		this.username = usuario;
-		this.correo=correo;
-		this.enabled=enabled;
-		this.fechaCambioclave=fechaCambioclave;
-		this.cambiarClave=cambiarClave;
-		this.fechaCreacion=fechaCreacion;
-		this.numeroDocumento=numeroDocumento;
+		this.username = username;
+		this.correo = correo;
+		this.enabled = enabled;
+		this.fechaCreacion = fechaCreacion;
+		this.usuarioRoles = usuarioRoles;
 	}
-	
-	
+
+	public Usuario(Empleado empleadoAsociado, String password, String username, String correo,
+			boolean enabled, LocalDate fechaCreacion, List<UsuarioRol> usuarioRoles) {
+		this.empleadoAsociado = empleadoAsociado;
+		this.password = password;
+		this.username = username;
+		this.correo = correo;
+		this.enabled = enabled;
+		this.fechaCreacion = fechaCreacion;
+		this.usuarioRoles = usuarioRoles;
+	}
+
+
+
 	public long getIdUsuario() {
 		return idUsuario;
 	}
 	public void setIdUsuario(long idUsuario) {
 		this.idUsuario = idUsuario;
 	}
-	public String getNombre() {
-		return nombre;
+
+	public Empleado getEmpleadoAsociado() {
+		return empleadoAsociado;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+
+	public void setEmpleadoAsociado(Empleado empleadoAsociado) {
+		this.empleadoAsociado = empleadoAsociado;
 	}
-	public String getApellido() {
-		return apellido;
-	}
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
-	}
+
 	public String getPassword() {
 		return password;
 	}
@@ -120,11 +122,9 @@ public class Usuario implements Serializable{
 		this.username = usuario;
 	}
 
-
     public List<UsuarioRol> getUsuarioRoles() {
         return usuarioRoles;
     }
-
 
     public void setUsuarioRoles(List<UsuarioRol> usuarioRoles) {
         this.usuarioRoles = usuarioRoles;
@@ -141,36 +141,28 @@ public class Usuario implements Serializable{
 		this.correo = correo;
 	}		
 	
-	public LocalDateTime getFechaCreacion() {
+	public LocalDate getFechaCreacion() {
 		return fechaCreacion;
 	}
-	public void setFechaCreacion(LocalDateTime fechaCreacion) {
+	public void setFechaCreacion(LocalDate fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
 	}
-	public boolean isCambiarClave() {
-		return cambiarClave;
-	}
-	public void setCambiarClave(boolean cambiarClave) {
-		this.cambiarClave = cambiarClave;
-	}
-	public LocalDateTime getFechaCambioclave() {
-		return fechaCambioclave;
-	}
-	public void setFechaCambioclave(LocalDateTime fechaCambioclave) {
-		this.fechaCambioclave = fechaCambioclave;
-	}
-
-	public String getNumeroDocumento() {
-		return numeroDocumento;
-	}
-	public void setNumeroDocumento(String numeroDocumento) {
-		this.numeroDocumento = numeroDocumento;
-	}
+/* 
 	@Override
 	public String toString() {
 		return "Usuario [idUsuario=" + idUsuario + ", nombre=" + nombre + ", apellido=" + apellido + ", password="
 				+ password + ", username=" + username + ", usuarioRoles=" + usuarioRoles + "]";
-	}
+	}*/
+
+
+	@Override
+	public String toString() {
+		return "Usuario [idUsuario=" + idUsuario + ", empleadoAsociado=" + empleadoAsociado + ", password=" + password
+				+ ", username=" + username + ", correo=" + correo + ", enabled=" + enabled + ", fechaCreacion="
+				+ fechaCreacion + ", usuarioRoles=" + usuarioRoles + "]";
+	}	
+
+	
 }
 		
 
