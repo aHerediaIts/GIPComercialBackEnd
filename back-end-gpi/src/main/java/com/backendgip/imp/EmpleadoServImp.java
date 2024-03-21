@@ -71,4 +71,8 @@ public class EmpleadoServImp implements EmpleadoService {
 	public boolean existsByEmail(String email) {
 		return this.empleadoRepository.existsByEmail(email);
 	}
+
+	public Empleado findByNombre(String nombre){
+		return this.empleadoRepository.findByNombre(nombre);
+	}
 }

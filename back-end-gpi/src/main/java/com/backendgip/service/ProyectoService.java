@@ -25,6 +25,8 @@ public interface ProyectoService {
 
 	Proyecto getProyectoById(Integer id);
 
+	Proyecto findByNombre(String nombre);
+
 	List<Proyecto> findByEstado(EstadoProyecto estado);
 
 	List<Proyecto> findProyectosForReporteTiempo(Empleado empleado);

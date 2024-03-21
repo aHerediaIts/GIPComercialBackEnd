@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface ActividadRepository extends CrudRepository<Actividad, Integer> {
 	List<Actividad> findByBase(Boolean base);
 
+	Actividad findByActividad(String actividad);
+
 	List<Actividad> findByProyecto(Proyecto proyecto);
 
 	List<Actividad> findByProyectoAndFase(Proyecto proyecto, FaseProyecto fase);

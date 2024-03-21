@@ -141,6 +141,15 @@ public class EmpleadoController {
 		return ResponseEntity.ok(empleadoRol);
 	}
 
+	@GetMapping({"/empleados/carga-masiva/{nombre}"})
+	public ResponseEntity<Empleado> findByNombre(@PathVariable String nombre){
+		Empleado empleado = empleadoService.findByNombre(nombre);
+		if (empleado == null){
+            throw new ResourceNotFoundException("No se encontró el proyecto con el nombre: " + nombre);
+        }
+        return ResponseEntity.ok(empleado);
+    }
+
 
 	@PutMapping({ "/empleados/{id}" })
 	public ResponseEntity<?> updateEmpleado(@PathVariable Integer id, @RequestBody EmpleadoRolSave empleadoDetails) throws Exception {

@@ -11,6 +11,9 @@ import com.backendgip.model.Proyecto;
 import java.util.List;
 
 public interface ActividadService {
+
+	Actividad findByActividad(String actividad);
+
 	List<Actividad> getActividades();
 
 	Actividad saveActividad(Actividad actividad);

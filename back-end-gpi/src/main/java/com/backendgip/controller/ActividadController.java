@@ -82,6 +82,15 @@ public class ActividadController {
 		return ResponseEntity.ok(actividad);
 	}
 
+	@GetMapping({"/actividades/carga-masiva/{actividad}"})
+	public ResponseEntity<Actividad> findByActividad(@PathVariable String actividad){
+		Actividad nombre = actividadService.findByActividad(actividad);
+		if (nombre == null){
+            throw new ResourceNotFoundException("No se encontró el proyecto con el nombre: " + nombre);
+        }
+        return ResponseEntity.ok(nombre);
+    }
+
 	@PutMapping({ "/actividades/{id}" })
 	public ResponseEntity<?> updateActividad(@PathVariable Integer id, @RequestBody Actividad actividadDetails) {
 		Actividad actividad = (Actividad) this.actividadRepository.findById(id).orElseThrow(() -> {

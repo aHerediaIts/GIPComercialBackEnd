@@ -19,6 +19,8 @@ import org.springframework.stereotype.Repository;
 public interface ProyectoRepository extends CrudRepository<Proyecto, Integer> {
 	List<Proyecto> findByEstadoProyecto(EstadoProyecto estado);
 
+	Proyecto findByNombre(String nombre);
+
 	boolean existsByCliente(Cliente cliente);
 
 	boolean existsByTipo(TipoProyecto tipo);

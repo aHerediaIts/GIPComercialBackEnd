@@ -175,4 +175,8 @@ public class ProyectoServImp implements ProyectoService {
 	public boolean existsByNombre(String nombre) {
 		return this.proyectoRepository.existsByNombre(nombre);
 	}
+
+	public Proyecto findByNombre(String nombre) {
+		return this.proyectoRepository.findByNombre(nombre);
+	}
 }

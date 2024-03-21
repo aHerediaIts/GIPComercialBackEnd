@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface EmpleadoService {
 	List<Empleado> getEmpleado();
 
+	Empleado findByNombre(String nombre);
+
 	Empleado saveEmpleado(Empleado empleado);
 
 	void deleteEmpleado(Empleado empleado);

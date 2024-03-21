@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -125,6 +126,7 @@ public class ClienteController {
 		return ResponseEntity.ok(cliente);
 	}
 
+
 	@DeleteMapping({ "/clientes/{id}" })
 	public ResponseEntity<?> deleteCliente(@PathVariable Integer id) {
 		Cliente cliente = (Cliente) this.clienteRepository.findById(id).orElseThrow(() -> {
@@ -147,6 +149,15 @@ public class ClienteController {
 			return ResponseEntity.ok(response);
 		}
 	}
+
+	@GetMapping("/clientes/carga-masiva/{nombre}")
+    public ResponseEntity<Cliente> findByNombre(@PathVariable String nombre) {
+        Cliente cliente = clienteService.findByNombre(nombre);
+        if (cliente == null){
+            throw new ResourceNotFoundException("No se encontró el proyecto con el nombre: " + nombre);
+        }
+        return ResponseEntity.ok(cliente);
+    }
 
 	@GetMapping({ "/clientes/reportes/find-by-sector/{idSector}" })
 	public ResponseEntity<?> findBySector(@PathVariable Integer idSector) {

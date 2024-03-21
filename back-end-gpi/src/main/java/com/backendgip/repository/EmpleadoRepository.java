@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface EmpleadoRepository extends CrudRepository<Empleado, Integer> {
 	Optional<Empleado> findByNombreUsuario(String nombreUsuario);
 
+	Empleado findByNombre(String nombre);
+
 	Optional<List<Empleado>> findByCargo(Cargo cargo);
 
 	boolean existsByCargo(Cargo cargo);

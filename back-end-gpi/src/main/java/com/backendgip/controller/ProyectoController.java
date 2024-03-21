@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.backendgip.model.Cliente;
 import com.backendgip.model.ComponenteDesarrollo;
@@ -40,10 +41,12 @@ import com.backendgip.service.RolService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -305,6 +308,16 @@ public class ProyectoController {
         return ResponseEntity.ok(proyecto);
     }
 
+    @GetMapping({"/proyectos/carga-masiva/{nombre}"})
+    public ResponseEntity<Proyecto> findByNombre(@PathVariable String nombre){
+        Proyecto proyecto = this.proyectoService.findByNombre(nombre);
+        if (proyecto == null){
+            throw new ResourceNotFoundException("No se encontró el proyecto con el nombre: " + nombre);
+        }
+        return ResponseEntity.ok(proyecto);
+    }
+
+
     @DeleteMapping({ "/proyectos/{id}" })
     public ResponseEntity<?> deleteProyecto(@PathVariable Integer id) {
         Proyecto proyecto = (Proyecto) this.proyectoRepository.findById(id).orElseThrow(() -> {
@@ -508,40 +521,71 @@ public class ProyectoController {
         }
     }
 
-    @PostMapping("/proyectos/carga-masiva") 
+    @PostMapping("/proyectos/carga-masiva")
     public ResponseEntity<String> cargarExcel(@RequestParam("file") MultipartFile file) {
         try {
             Workbook workbook = new XSSFWorkbook(file.getInputStream());
             Sheet sheet = workbook.getSheetAt(0);
             List<String> columnNames = new ArrayList<>();
+            List<String> columnRequired = Arrays.asList("Cliente", "Proyecto", "Actividad", "NombreRecurso",
+                    "Justificacion", "FechaReporte", "Horas");
             Row headerRow = sheet.getRow(0);
             for (int i = 0; i < headerRow.getLastCellNum(); i++) {
                 Cell cell = headerRow.getCell(i);
-                columnNames.add(cell.getStringCellValue());
-            }
-            List<Map<String, String>> excelData = new ArrayList<>();
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row currentRow = sheet.getRow(i);
-                Map<String, String> rowData = new HashMap<>();
-                for (int j = 0; j < currentRow.getLastCellNum(); j++) {
-                    Cell currentCell = currentRow.getCell(j);
-                    if (currentCell.getCellType() == CellType.STRING) {
-                        rowData.put(columnNames.get(j), currentCell.getStringCellValue());
-                    } else if (currentCell.getCellType() == CellType.NUMERIC) {
-                        rowData.put(columnNames.get(j), String.valueOf(currentCell.getNumericCellValue()));
+                String columnName = cell.getStringCellValue();
+                if (columnName.contains(" ")) {
+                    String[] parts = columnName.split(" ");
+                    StringBuilder sb = new StringBuilder();
+                    for (String part : parts) {
+                        sb.append(part.substring(0, 1).toUpperCase()).append(part.substring(1));
                     }
+                    columnNames.add(sb.toString());
+                } else {
+                    columnNames.add(columnName);
                 }
-                excelData.add(rowData);
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonData = objectMapper.writeValueAsString(excelData);
-            workbook.close();
-            return ResponseEntity.ok(jsonData);
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().body("Error al procesar el archivo Excel: " + e.getMessage());
+
+            if (!columnNames.containsAll(columnRequired)) {
+                workbook.close();
+                return ResponseEntity.badRequest().body("La plantilla no coincide con el excel");
+            } else {
+                List<Map<String, Object>> excelData = new ArrayList<>();
+                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                    Row currentRow = sheet.getRow(i);
+                    Map<String, Object> rowData = new HashMap<>();
+                    for (int j = 0; j < columnNames.size(); j++) {
+                        Cell currentCell = currentRow.getCell(j);
+                        if (currentCell != null) {
+                            if (currentCell.getCellType() == CellType.STRING) {
+                                rowData.put(columnNames.get(j), currentCell.getStringCellValue().toUpperCase());
+                            } else if (currentCell.getCellType() == CellType.NUMERIC) {
+                                if (DateUtil.isCellDateFormatted(currentCell)) {
+                                    Date date = currentCell.getDateCellValue();
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                    String formattedDate = sdf.format(date);
+                                    rowData.put(columnNames.get(j), formattedDate);
+                                } else {
+                                    rowData.put(columnNames.get(j), currentCell.getNumericCellValue());
+                                }
+                            } else if (currentCell.getCellType() == CellType.BLANK) {
+                                rowData.put(columnNames.get(j), null);
+                            }
+                        } else {
+                            rowData.put(columnNames.get(j), null);
+                        }
+                    }
+                    excelData.add(rowData);
+                }
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonData = objectMapper.writeValueAsString(excelData);
+                workbook.close();
+                return ResponseEntity.ok(jsonData);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al procesar el archivo de excel, la plantilla no es compatible.");
         }
     }
-
+    
     public void projectDataChange(Proyecto proyecto, Integer creator) {
         Proyecto oldProyecto = this.proyectoService.getProyectoById(proyecto.getId());
         String ca = "<style>\r\n    table {\r\n      border-collapse: collapse;\r\n      width: 100%;\r\n      border: solid #ccc 1px;\r\n    }\r\n    th, td {\r\n    text-align: center;\r\n    padding: 8px;\r\n    }\r\n    tr:nth-child(even){background-color: #f2f2f2}\r\n    th {\r\n      background-color: #59c3ec;\r\n      color: white;\r\n    }\r\n    </style>\r\n<body>\r\n";

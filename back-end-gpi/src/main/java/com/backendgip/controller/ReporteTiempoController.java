@@ -145,20 +145,26 @@ public class ReporteTiempoController {
     }
 
 
-    @PostMapping({"/reportes/enviar-int"})
-    public ResponseEntity<?> enviarProyectoInt(@RequestBody ReporteTiempo reporte) {
+    @PostMapping({ "/reportes/carga-masiva" })
+    public ResponseEntity<?> cargaMasiva(@RequestBody List<ReporteTiempo> reportes) {
+        System.out.println(reportes);
         LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota"));
-        ActividadAsignada actividad = reporte.getActividad();
-        actividad.setFechaInicio(reporte.getFecha());
-        actividad.setFechaFin(reporte.getFecha());
-        if (reporte.getFecha().isAfter(fechaActual)) {
-            return ResponseEntity.badRequest().body("La fecha del reporte no puede ser mayor a la fecha actual");
-        } else {
-            this.actividadAsigService.saveActividad(actividad);
-            reporte.setEstado(this.estadoService.getEstadoReporteTiempoById(1));
-            ReporteTiempo createdReporte = this.reporteTiempoService.saveReporteTiempo(reporte);
-            return new ResponseEntity(createdReporte, HttpStatus.OK);
+        List<ReporteTiempo> reportesCreados = new ArrayList<>();
+        for (ReporteTiempo reporte : reportes) {
+            System.out.println(reporte);
+            ActividadAsignada actividad = reporte.getActividad();
+            actividad.setFechaInicio(reporte.getFecha());
+            actividad.setFechaFin(reporte.getFecha());
+            if (reporte.getFecha().isAfter(fechaActual)) {
+                return ResponseEntity.badRequest().body("La fecha del reporte no puede ser mayor a la fecha actual");
+            } else {
+                this.actividadAsigService.saveActividad(actividad);
+                reporte.setEstado(this.estadoService.getEstadoReporteTiempoById(1));
+                ReporteTiempo createdReporte = this.reporteTiempoService.saveReporteTiempo(reporte);
+                reportesCreados.add(createdReporte);
+            }
         }
+        return ResponseEntity.ok().body(reportesCreados);
     }
 
     @PostMapping({"/reportes/enviar"})

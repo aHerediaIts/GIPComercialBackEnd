@@ -89,4 +89,8 @@ public class ActividadServiceImp implements ActividadService {
 	public List<Actividad> findByFase(FaseProyecto fase) {
 		return this.actividadRepository.findByFase(fase);
 	}
+
+	public Actividad findByActividad(String actividad){
+		return this.actividadRepository.findByActividad(actividad);
+	}
 }
