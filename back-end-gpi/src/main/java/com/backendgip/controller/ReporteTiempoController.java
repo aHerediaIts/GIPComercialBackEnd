@@ -22,7 +22,7 @@ import java.util.*;
 
 @RestController
 @Transactional
-@RequestMapping({"/api/proyectos/reporte-tiempo"})
+@RequestMapping({ "/api/proyectos/reporte-tiempo" })
 public class ReporteTiempoController {
     @Autowired
     private ReporteTiempoService reporteTiempoService;
@@ -79,7 +79,7 @@ public class ReporteTiempoController {
     }
 
     public List<ReporteTiempo> getReportesBetweenFechaInicioAndFechaFin(LocalDate fechaInicio, LocalDate fechaFin,
-                                                                        Integer id) {
+            Integer id) {
         Empleado ids = this.empleadoService.getEmpleadoById(id);
         List<ReporteTiempo> reportes = this.reporteTiempoService.findByEmpleado(ids);
         List<ReporteTiempo> reporte = new ArrayList();
@@ -100,12 +100,12 @@ public class ReporteTiempoController {
         }
     }
 
-    @GetMapping({"/reportes"})
+    @GetMapping({ "/reportes" })
     public List<ReporteTiempo> getAllReporteTiempo() {
         return this.reporteTiempoService.getReporteTiempo();
     }
 
-    @GetMapping({"/reportes/ultimos-dos-meses"})
+    @GetMapping({ "/reportes/ultimos-dos-meses" })
     public List<ReporteTiempo> getAllReporteTiempoFechaAfter() {
         LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota")).minusMonths(2);
         return this.reporteTiempoService.getReporteTiempoFechaAfter(fechaActual);
@@ -114,9 +114,9 @@ public class ReporteTiempoController {
     @GetMapping("/reportes/empleado")
     public List<ReporteTiempo> getAllReporteTiempoByIdEmpleados(@RequestParam List<Integer> recursosAdd) {
         List<ReporteTiempo> reportesFiltrados = new ArrayList<>();
-    
+
         List<ReporteTiempo> reportes = this.reporteTiempoService.getReporteTiempo();
-        
+
         for (Integer empleadoId : recursosAdd) {
             for (ReporteTiempo reporte : reportes) {
                 if (reporte.getEmpleado().getId() == empleadoId && reporte.getEstado().getId() == 1) {
@@ -124,11 +124,11 @@ public class ReporteTiempoController {
                 }
             }
         }
-    
+
         return reportesFiltrados;
     }
 
-    @GetMapping({"/reportes/paginado"})
+    @GetMapping({ "/reportes/paginado" })
     public List<ReporteTiempo> getAllReporteTiempoPaging(@RequestParam String page, @RequestParam String size) {
         try {
             if (validateNumberFormat(page) && validateNumberFormat(size)) {
@@ -144,30 +144,37 @@ public class ReporteTiempoController {
         return new ArrayList<>();
     }
 
-
-    @PostMapping({ "/reportes/carga-masiva" })
+    @PostMapping("/reportes/carga-masiva")
     public ResponseEntity<?> cargaMasiva(@RequestBody List<ReporteTiempo> reportes) {
-        System.out.println(reportes);
         LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota"));
         List<ReporteTiempo> reportesCreados = new ArrayList<>();
-        for (ReporteTiempo reporte : reportes) {
-            System.out.println(reporte);
+
+        for (int index = 0; index < reportes.size(); index++) {
+            ReporteTiempo reporte = reportes.get(index);
             ActividadAsignada actividad = reporte.getActividad();
             actividad.setFechaInicio(reporte.getFecha());
             actividad.setFechaFin(reporte.getFecha());
-            if (reporte.getFecha().isAfter(fechaActual)) {
-                return ResponseEntity.badRequest().body("La fecha del reporte no puede ser mayor a la fecha actual");
-            } else {
+
+            try {
+
+                if (reporte.getFecha().isAfter(fechaActual)) {
+                    throw new IllegalArgumentException("La fecha del reporte en la celda " + (index + 2)
+                            + " no puede ser mayor a la fecha actual");
+                }
+
                 this.actividadAsigService.saveActividad(actividad);
                 reporte.setEstado(this.estadoService.getEstadoReporteTiempoById(1));
                 ReporteTiempo createdReporte = this.reporteTiempoService.saveReporteTiempo(reporte);
                 reportesCreados.add(createdReporte);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
+
         return ResponseEntity.ok().body(reportesCreados);
     }
 
-    @PostMapping({"/reportes/enviar"})
+    @PostMapping({ "/reportes/enviar" })
     public ResponseEntity<?> enviar(@RequestBody ReporteTiempo reporte) {
         LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota"));
         if (reporte.getFecha().isAfter(fechaActual)) {
@@ -193,9 +200,9 @@ public class ReporteTiempoController {
         }
     }
 
-    @PutMapping({"/reportes/aprobar/{id}/{fechaA}/{aprobador}"})
+    @PutMapping({ "/reportes/aprobar/{id}/{fechaA}/{aprobador}" })
     public ResponseEntity<?> aprobar(@PathVariable Integer id, @PathVariable Date fechaA,
-                                     @PathVariable Integer aprobador) {
+            @PathVariable Integer aprobador) {
         ReporteTiempo reporte = (ReporteTiempo) this.reporteTiempoRepository.findById(id).orElseThrow(() -> {
             return new ResourceNotFoundException(" No existe Reporte de Tiempo con el id: " + id);
         });
@@ -227,7 +234,7 @@ public class ReporteTiempoController {
         return new ResponseEntity(reporteAprobado, HttpStatus.OK);
     }
 
-    @PutMapping({"/reportes/devolver/{id}"})
+    @PutMapping({ "/reportes/devolver/{id}" })
     public ResponseEntity<?> devolver(@PathVariable Integer id, @RequestBody ReporteTiempo reporteDetails) {
         ReporteTiempo reporte = (ReporteTiempo) this.reporteTiempoRepository.findById(id).orElseThrow(() -> {
             return new ResourceNotFoundException(" No existe Reporte de Tiempo con el id: " + id);
@@ -254,7 +261,7 @@ public class ReporteTiempoController {
         return new ResponseEntity(reporteDevuelto, HttpStatus.OK);
     }
 
-    @PutMapping({"/reportes/reenviar/{id}"})
+    @PutMapping({ "/reportes/reenviar/{id}" })
     public ResponseEntity<?> reenviar(@PathVariable Integer id, @RequestBody ReporteTiempo reporteDetails) {
         ReporteTiempo reporte = (ReporteTiempo) this.reporteTiempoRepository.findById(id).orElseThrow(() -> {
             return new ResourceNotFoundException(" No existe Reporte de Tiempo con el id: " + id);
@@ -281,7 +288,7 @@ public class ReporteTiempoController {
         return new ResponseEntity(reporteReenviado, HttpStatus.OK);
     }
 
-    @GetMapping({"/reportes/{id}"})
+    @GetMapping({ "/reportes/{id}" })
     public ResponseEntity<ReporteTiempo> getReporteTiempoById(@PathVariable Integer id) {
         ReporteTiempo reporteTiempo = (ReporteTiempo) this.reporteTiempoRepository.findById(id).orElseThrow(() -> {
             return new ResourceNotFoundException(" No existe Reporte de Tiempo con el id: " + id);
@@ -289,7 +296,7 @@ public class ReporteTiempoController {
         return ResponseEntity.ok(reporteTiempo);
     }
 
-    @DeleteMapping({"/reportes/{id}"})
+    @DeleteMapping({ "/reportes/{id}" })
     public ResponseEntity<Map<String, Boolean>> deleteReporteTiempo(@PathVariable Integer id) {
         ReporteTiempo reporteTiempo = (ReporteTiempo) this.reporteTiempoRepository.findById(id).orElseThrow(() -> {
             return new ResourceNotFoundException("No existe el ReporteTiempo con el id: " + id);
@@ -307,7 +314,7 @@ public class ReporteTiempoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping({"/reportes/search/proyecto/{idProyecto}"})
+    @GetMapping({ "/reportes/search/proyecto/{idProyecto}" })
     public ResponseEntity<?> findByProyecto(@PathVariable Integer idProyecto) {
         Proyecto proyecto = (Proyecto) this.proyectoRepository.findById(idProyecto).orElseThrow(() -> {
             return new ResourceNotFoundException("Proyecto no encontrado con id: " + idProyecto);
@@ -317,7 +324,7 @@ public class ReporteTiempoController {
                 : new ResponseEntity(this.reporteTiempoRepository.findByProyecto(proyecto), HttpStatus.OK);
     }
 
-    @GetMapping({"/reportes/search/estado/{idEstado}"})
+    @GetMapping({ "/reportes/search/estado/{idEstado}" })
     public ResponseEntity<?> findByEstado(@PathVariable Integer idEstado) {
         EstadoReporteTiempo estado = (EstadoReporteTiempo) this.estadoReporteTiempoRepository.findById(idEstado)
                 .orElseThrow(() -> {
@@ -328,7 +335,7 @@ public class ReporteTiempoController {
                 : new ResponseEntity(this.reporteTiempoRepository.findByEstado(estado), HttpStatus.OK);
     }
 
-    @GetMapping({"/reportes/search/proyecto-estado/{idProyecto}/{idEstado}"})
+    @GetMapping({ "/reportes/search/proyecto-estado/{idProyecto}/{idEstado}" })
     public ResponseEntity<?> findByProyectoAndEstado(@PathVariable Integer idProyecto, @PathVariable Integer idEstado) {
         Proyecto proyecto = (Proyecto) this.proyectoRepository.findById(idProyecto).orElseThrow(() -> {
             return new ResourceNotFoundException("Proyecto no encontrado con id: " + idProyecto);
@@ -340,37 +347,44 @@ public class ReporteTiempoController {
         return this.reporteTiempoRepository.findByProyectoAndEstado(proyecto, estado).isEmpty()
                 ? new ResponseEntity("No se encontraron resultado en la busqueda", HttpStatus.BAD_REQUEST)
                 : new ResponseEntity(this.reporteTiempoRepository.findByProyectoAndEstado(proyecto, estado),
-                HttpStatus.OK);
+                        HttpStatus.OK);
     }
 
-    @GetMapping({"/reportes/search/proyecto-empleado/{idProyecto}/{idEmpleado}"})
-    public ResponseEntity<?> findByProyectoAndEmpleado(@PathVariable Integer idProyecto, @PathVariable Integer idEmpleado) {
+    @GetMapping({ "/reportes/search/proyecto-empleado/{idProyecto}/{idEmpleado}" })
+    public ResponseEntity<?> findByProyectoAndEmpleado(@PathVariable Integer idProyecto,
+            @PathVariable Integer idEmpleado) {
         Proyecto proyecto = (Proyecto) this.proyectoRepository.findById(idProyecto).orElseThrow(() -> {
             return new ResourceNotFoundException("Proyecto no encontrado con id: " + idProyecto);
         });
-            Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
-                    return new ResourceNotFoundException("Estado no encontrado con id: " + idEmpleado);
-                });
+        Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
+            return new ResourceNotFoundException("Estado no encontrado con id: " + idEmpleado);
+        });
         return this.reporteTiempoRepository.findByProyectoAndEmpleado(proyecto, empleado).isEmpty()
                 ? new ResponseEntity("No se encontraron resultado en la busqueda", HttpStatus.BAD_REQUEST)
                 : new ResponseEntity(this.reporteTiempoRepository.findByProyectoAndEmpleado(proyecto, empleado),
-                HttpStatus.OK);
+                        HttpStatus.OK);
     }
 
-        @GetMapping({"/reportes/search/proyecto-estado-empleado/{idProyecto}/{idEstado}/{idEmpleado}"})
-    public ResponseEntity<?> findByProyectoAndEstadoAndEmpleado(@PathVariable Integer idProyecto,@PathVariable Integer idEstado, @PathVariable Integer idEmpleado) {
+    @GetMapping({ "/reportes/search/proyecto-estado-empleado/{idProyecto}/{idEstado}/{idEmpleado}" })
+    public ResponseEntity<?> findByProyectoAndEstadoAndEmpleado(@PathVariable Integer idProyecto,
+            @PathVariable Integer idEstado, @PathVariable Integer idEmpleado) {
         Proyecto proyecto = (Proyecto) this.proyectoRepository.findById(idProyecto).orElseThrow(() -> {
-            return new ResourceNotFoundException("Proyecto no encontrado con id: " + idProyecto);});
-            
-        EstadoReporteTiempo estado = (EstadoReporteTiempo) this.estadoReporteTiempoRepository.findById(idEstado).orElseThrow(() -> {
-                return new ResourceNotFoundException("Estado no encontrado con id: " + idEstado);});
-                
-        Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
-            return new ResourceNotFoundException("Estado no encontrado con id: " + idEmpleado);});
+            return new ResourceNotFoundException("Proyecto no encontrado con id: " + idProyecto);
+        });
 
-        return this.reporteTiempoRepository.findByProyectoAndEstadoAndEmpleado(proyecto, estado ,empleado).isEmpty()
+        EstadoReporteTiempo estado = (EstadoReporteTiempo) this.estadoReporteTiempoRepository.findById(idEstado)
+                .orElseThrow(() -> {
+                    return new ResourceNotFoundException("Estado no encontrado con id: " + idEstado);
+                });
+
+        Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
+            return new ResourceNotFoundException("Estado no encontrado con id: " + idEmpleado);
+        });
+
+        return this.reporteTiempoRepository.findByProyectoAndEstadoAndEmpleado(proyecto, estado, empleado).isEmpty()
                 ? new ResponseEntity("No se encontraron resultado en la busqueda", HttpStatus.BAD_REQUEST)
-                : new ResponseEntity(this.reporteTiempoRepository.findByProyectoAndEstadoAndEmpleado(proyecto, estado, empleado),
+                : new ResponseEntity(
+                        this.reporteTiempoRepository.findByProyectoAndEstadoAndEmpleado(proyecto, estado, empleado),
                         HttpStatus.OK);
     }
 
@@ -389,8 +403,7 @@ public class ReporteTiempoController {
                         HttpStatus.OK);
     }
 
-
-    @GetMapping({"/reportes/search/mes-actual-empleado/{idEmpleado}"})
+    @GetMapping({ "/reportes/search/mes-actual-empleado/{idEmpleado}" })
     public ResponseEntity<?> findByFechaBetweenEmpleado(@PathVariable Integer idEmpleado) {
         Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
             return new ResourceNotFoundException("Empleado no encontrado con id: " + idEmpleado);
@@ -401,10 +414,13 @@ public class ReporteTiempoController {
         int ultimoDiaDelMes = YearMonth.from(fechaActual).lengthOfMonth();
         LocalDate ultimoDiaDelMesDate = fechaActual.withDayOfMonth(ultimoDiaDelMes);
 
-        return this.reporteTiempoRepository.findByEmpleadoAndFechaBetween(empleado, primerDiaDelMes, ultimoDiaDelMesDate).isEmpty()
-                ? new ResponseEntity("No se encontraron resultado en la busqueda", HttpStatus.BAD_REQUEST)
-                : new ResponseEntity(this.reporteTiempoRepository.findByEmpleadoAndFechaBetween(empleado, primerDiaDelMes, ultimoDiaDelMesDate),
-                HttpStatus.OK);
+        return this.reporteTiempoRepository
+                .findByEmpleadoAndFechaBetween(empleado, primerDiaDelMes, ultimoDiaDelMesDate).isEmpty()
+                        ? new ResponseEntity("No se encontraron resultado en la busqueda", HttpStatus.BAD_REQUEST)
+                        : new ResponseEntity(
+                                this.reporteTiempoRepository.findByEmpleadoAndFechaBetween(empleado, primerDiaDelMes,
+                                        ultimoDiaDelMesDate),
+                                HttpStatus.OK);
     }
 
     @GetMapping({ "/reportes/search/horas-empleado-dia/{idEmpleado}/{fecha}" })
@@ -420,7 +436,7 @@ public class ReporteTiempoController {
         return new ResponseEntity(totalHoras, HttpStatus.OK);
     }
 
-    @GetMapping({"/reportes/pendientes/empleado/{idEmpleado}"})
+    @GetMapping({ "/reportes/pendientes/empleado/{idEmpleado}" })
     public ResponseEntity<?> findPendingReportes(@PathVariable Integer idEmpleado) {
         Empleado empleado = (Empleado) this.empleadoRepository.findById(idEmpleado).orElseThrow(() -> {
             return new ResourceNotFoundException("Empleado no encontrado con id: " + idEmpleado);
@@ -431,7 +447,8 @@ public class ReporteTiempoController {
 
         while (var5.hasNext()) {
             RecursoActividad a = (RecursoActividad) var5.next();
-            if (!this.reporteTiempoRepository.existsByEmpleadoAndFechaAndActividad(empleado, a.getFecha(), a.getActividad())) {
+            if (!this.reporteTiempoRepository.existsByEmpleadoAndFechaAndActividad(empleado, a.getFecha(),
+                    a.getActividad())) {
                 ReporteTiempo reporte = new ReporteTiempo();
                 reporte.setActividad(a.getActividad());
                 reporte.setEmpleado(empleado);
@@ -446,19 +463,19 @@ public class ReporteTiempoController {
         return ResponseEntity.ok(pendingReportes);
     }
 
-    @GetMapping({"/reportes/find-by-actividad/{idActividad}"})
+    @GetMapping({ "/reportes/find-by-actividad/{idActividad}" })
     public ResponseEntity<?> findByActividad(@PathVariable Integer idActividad) {
         ActividadAsignada actividad = this.actAsigService.getActividadById(idActividad);
         return ResponseEntity.ok(this.reporteTiempoService.findByActividad(actividad));
     }
 
-    @GetMapping({"/reportes/find-by-empleado/{idEmpleado}"})
+    @GetMapping({ "/reportes/find-by-empleado/{idEmpleado}" })
     public ResponseEntity<?> findByEmpleado(@PathVariable Integer idEmpleado) {
         Empleado empleado = this.empleadoService.getEmpleadoById(idEmpleado);
         return ResponseEntity.ok(this.reporteTiempoService.findByEmpleado(empleado));
     }
 
-    @GetMapping({"/reportes/find-by-empleados/{empleados}"})
+    @GetMapping({ "/reportes/find-by-empleados/{empleados}" })
     public ResponseEntity<?> findByEmpleadoNombre(@PathVariable String empleados) {
         List<ReporteTiempo> reportes = new ArrayList();
         List<Empleado> empleado = this.empleadoRepository.findByNombreContaining(empleados);
@@ -486,7 +503,7 @@ public class ReporteTiempoController {
         }
     }
 
-    @GetMapping({"/reportes/find-by-proyecto-int"})
+    @GetMapping({ "/reportes/find-by-proyecto-int" })
     public ResponseEntity<?> findByProyectoInt() {
         List<ReporteTiempo> allReportes = this.reporteTiempoService.getReporteTiempo();
         List<ReporteTiempo> reportes = new ArrayList();
@@ -504,7 +521,7 @@ public class ReporteTiempoController {
         return ResponseEntity.ok(reportes);
     }
 
-    @GetMapping({"/reportes/find-by-lider/{idLider}"})
+    @GetMapping({ "/reportes/find-by-lider/{idLider}" })
     public ResponseEntity<?> findByLider(@PathVariable Integer idLider) {
         Empleado lider = this.empleadoService.getEmpleadoById(idLider);
         List<ReporteTiempo> allReportes = this.reporteTiempoService
@@ -537,9 +554,9 @@ public class ReporteTiempoController {
         return flag;
     }
 
-    @GetMapping({"/reportes/searchByEmpleado/{fechaInicio}/{fechaFin}/{id}"})
+    @GetMapping({ "/reportes/searchByEmpleado/{fechaInicio}/{fechaFin}/{id}" })
     public ResponseEntity<?> getRecursosAprobacionTiempos(@PathVariable String fechaInicio,
-                                                          @PathVariable String fechaFin, @PathVariable Integer id) {
+            @PathVariable String fechaFin, @PathVariable Integer id) {
         LocalDate fechaI = this.stringToLocalDate(fechaInicio);
         LocalDate fechaF = this.stringToLocalDate(fechaFin);
         LocalDate fechaA = LocalDate.now(ZoneId.of("America/Bogota"));
@@ -549,14 +566,14 @@ public class ReporteTiempoController {
             return !fechaI.isAfter(fechaF) && !fechaF.isBefore(fechaI)
                     ? ResponseEntity.ok(this.getReportesBetweenFechaInicioAndFechaFin(fechaI, fechaF, id))
                     : ResponseEntity.badRequest().body(
-                    "La fecha inicio no puede ser mayor a la fecha fin y la fecha fin no puede ser menor a la fecha inicio");
+                            "La fecha inicio no puede ser mayor a la fecha fin y la fecha fin no puede ser menor a la fecha inicio");
         } else {
             return ResponseEntity.badRequest()
                     .body("La fecha inicio o la fecha fin no puede ser mayor a la fecha actual");
         }
     }
 
-    @GetMapping({"reportes/recursos-planeados"})
+    @GetMapping({ "reportes/recursos-planeados" })
     public ResponseEntity<?> getReportesByEstado() {
         List<Empleado> emp = this.empleadoService.getEmpleado();
         Empleado empleado = (Empleado) this.empleadoService.getEmpleado();
