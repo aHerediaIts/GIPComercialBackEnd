@@ -261,20 +261,17 @@ public class Proyecto implements Serializable {
 		this.creador = creador;
 	}
 
+	@Override
 	public String toString() {
-		return "Proyecto [id=" + this.id + ", codigo=" + this.codigo + ", nombre=" + this.nombre + ", costo="
-				+ this.costo + ", descripcion=" + this.descripcion + ", fechaCreacion=" + this.fechaCreacion
-				+ ", fechaAprobacion=" + this.fechaAprobacion + ", fechaInicio=" + this.fechaInicio + ", fechaFin="
-				+ this.fechaFin + ", horasPlaneadas=" + this.horasPlaneadas + ", horasPropuesta=" + this.horasPropuesta
-				+ ", directorClient=" + this.directorClient + ", tipo="
-				+ Optional.ofNullable(this.tipo != null ? this.tipo.getTipo() : null) .orElse(null)+ ", etapa="
-				+ Optional.ofNullable(this.etapa != null ? this.etapa.getEtapa() : null).orElse(null) + ", componente="
-				+ Optional.ofNullable(this.componente != null ? this.componente.getComponente() : null).orElse(null) + ", cliente="
-				+ Optional.ofNullable(this.cliente != null ? this.cliente.getNombre() : null).orElse(null) + ", estadoPropuesta="
-				+ Optional.ofNullable(this.estadoPropuesta != null ? this.estadoPropuesta.getEstado() : null).orElse(null) + ", estadoProyecto="
-				+ Optional.ofNullable(this.estadoProyecto != null ? this.estadoProyecto.getEstado() : null).orElse(null) + ", directorIts="
-				+ Optional.ofNullable(this.directorIts != null ? this.directorIts.getNombre() : null).orElse(null) + ", lider="
-				+ Optional.ofNullable(this.lider != null ? this.lider.getNombre() : null).orElse(null)
-				+ ", interno=" + this.interno + ", creador=" + this.creador + "]";
+		return "Proyecto [id=" + id + ", codigo=" + codigo + ", nombre=" + nombre + ", costo=" + costo
+				+ ", descripcion=" + descripcion + ", fechaCreacion=" + fechaCreacion + ", fechaAprobacion="
+				+ fechaAprobacion + ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin + ", horasPlaneadas="
+				+ horasPlaneadas + ", horasPropuesta=" + horasPropuesta + ", directorClient=" + directorClient
+				+ ", rfProyecto=" + rfProyecto + ", tipo=" + tipo + ", etapa=" + etapa + ", componente=" + componente
+				+ ", cliente=" + cliente + ", estadoPropuesta=" + estadoPropuesta + ", estadoProyecto=" + estadoProyecto
+				+ ", directorIts=" + directorIts + ", lider=" + lider + ", interno=" + interno + ", creador=" + creador
+				+ "]";
 	}
+
+	
 }

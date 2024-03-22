@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.backendgip.repository.ProyectoRepository;
 
 @Service
 public class ActividadAsignadaServImp implements ActividadAsignadaService {
@@ -98,5 +99,25 @@ public class ActividadAsignadaServImp implements ActividadAsignadaService {
 		}
 
 		return maxDate;
+	}
+
+	public List<ActividadAsignada> getActividadFechasProyecto(LocalDate fechaInicio, LocalDate fechaFin,
+			Proyecto proyecto) {
+		List<ActividadAsignada> actividades = (List<ActividadAsignada>) this.actividadRepository.findByProyecto(proyecto);
+		List<ActividadAsignada> actividadFiltradosPorFechaFiltroFechaNula = new ArrayList();
+		List<ActividadAsignada> actividadFiltradosPorFecha = new ArrayList();
+
+		for (ActividadAsignada actividad : actividades) {
+			if(actividad.getFechaInicio() != null && actividad.getFechaFin() != null){
+				actividadFiltradosPorFechaFiltroFechaNula.add(actividad);
+			}}
+
+		for (ActividadAsignada actividad : actividadFiltradosPorFechaFiltroFechaNula) {
+			if((actividad.getFechaInicio().equals(fechaInicio) && actividad.getFechaFin().equals(fechaFin)) || (actividad.getFechaInicio().isAfter(fechaInicio) && actividad.getFechaFin().isBefore(fechaFin))){
+				actividadFiltradosPorFecha.add(actividad);
+			}}
+		System.out.println(actividadFiltradosPorFecha);
+		return 	actividadFiltradosPorFecha;
+				
 	}
 }

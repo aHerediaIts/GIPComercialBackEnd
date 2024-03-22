@@ -30,4 +30,6 @@ public interface ActividadAsignadaService {
 	List<ActividadAsignada> findByActividad(Actividad actividad);
 
 	LocalDate getFechaFinMax(Proyecto proyecto, ActividadAsignada actividad);
+	
+	List<ActividadAsignada> getActividadFechasProyecto(LocalDate fechaInicio, LocalDate fechaFin, Proyecto proyecto);
 }
