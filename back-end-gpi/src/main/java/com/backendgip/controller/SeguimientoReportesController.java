@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backendgip.model.RecursoActividad;
+import com.backendgip.model.ReporteTiempo;
 import com.backendgip.service.RecursoActividadService;
+import com.backendgip.service.ReporteTiempoService;
 import com.backendgip.model.Proyecto;
 import com.backendgip.repository.ProyectoRepository;
-import com.backendgip.service.ProyectoService;
 import com.backendgip.service.ActividadAsignadaService;
 import com.backendgip.model.ActividadAsignada;
 
@@ -39,6 +40,8 @@ public class SeguimientoReportesController {
 	private ActividadAsignadaService actividadAsignada;
 	@Autowired
 	private ProyectoService proyectoservice; 
+	@Autowired
+    private ReporteTiempoService reporteTiempoService;
 
     public SeguimientoReportesController(){
     }
@@ -75,9 +78,7 @@ public class SeguimientoReportesController {
 		List<RecursoActividad> resportessalida = new ArrayList<>();
 		List<RecursoActividad> recursosActividad = this.buscarActividades(rf_proyecto, fechaInicio, fechaFin);
 		for(RecursoActividad recursos_actividad: recursosActividad){
-			if ("CAFAM".equals(recursos_actividad.getActividad().getProyecto().getCliente().getNombre())) {
 				resportessalida.add(recursos_actividad);
-			}
 		}
         return resportessalida;
 	}
@@ -91,6 +92,7 @@ public class SeguimientoReportesController {
                 proyectossalida.add(proyecto); 
             }
         }
+		
         return proyectossalida;
     }
 
@@ -114,6 +116,12 @@ public class SeguimientoReportesController {
 			    }
 		    }
 		}
+		
         return recursosActividad;
+	}
+
+	@GetMapping("/reporte/control-horas")
+	public List<ReporteTiempo> getAllReporteTiempo() {
+		return this.reporteTiempoService.getReporteTiempo();
 	}
 }
