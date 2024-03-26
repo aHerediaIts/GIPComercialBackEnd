@@ -176,6 +176,10 @@ public class ProyectoServImp implements ProyectoService {
 		return this.proyectoRepository.existsByNombre(nombre);
 	}
 
+	public boolean existsByRfProyecto(String rfProyecto){
+		return this.proyectoRepository.existsByRfProyecto(rfProyecto);
+	}
+
 	public Proyecto findByNombre(String nombre) {
 		return this.proyectoRepository.findByNombre(nombre);
 	}

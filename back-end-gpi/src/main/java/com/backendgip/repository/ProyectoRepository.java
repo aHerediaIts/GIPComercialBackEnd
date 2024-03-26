@@ -1,51 +1,53 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+	//
+	// Source code recreated from a .class file by IntelliJ IDEA
+	// (powered by FernFlower decompiler)
+	//
 
-package com.backendgip.repository;
+	package com.backendgip.repository;
 
-import com.backendgip.model.Cliente;
-import com.backendgip.model.ComponenteDesarrollo;
-import com.backendgip.model.Empleado;
-import com.backendgip.model.EstadoProyecto;
-import com.backendgip.model.Proyecto;
-import com.backendgip.model.TipoProyecto;
-import java.util.List;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+	import com.backendgip.model.Cliente;
+	import com.backendgip.model.ComponenteDesarrollo;
+	import com.backendgip.model.Empleado;
+	import com.backendgip.model.EstadoProyecto;
+	import com.backendgip.model.Proyecto;
+	import com.backendgip.model.TipoProyecto;
+	import java.util.List;
+	import org.springframework.data.repository.CrudRepository;
+	import org.springframework.stereotype.Repository;
 
-@Repository
-public interface ProyectoRepository extends CrudRepository<Proyecto, Integer> {
-	List<Proyecto> findByEstadoProyecto(EstadoProyecto estado);
+	@Repository
+	public interface ProyectoRepository extends CrudRepository<Proyecto, Integer> {
+		List<Proyecto> findByEstadoProyecto(EstadoProyecto estado);
 
-	Proyecto findByNombre(String nombre);
+		Proyecto findByNombre(String nombre);
 
-	boolean existsByCliente(Cliente cliente);
+		boolean existsByCliente(Cliente cliente);
 
-	boolean existsByTipo(TipoProyecto tipo);
+		boolean existsByTipo(TipoProyecto tipo);
 
-	boolean existsByComponente(ComponenteDesarrollo componente);
+		boolean existsByComponente(ComponenteDesarrollo componente);
 
-	boolean existsByNombre(String nombre);
+		boolean existsByNombre(String nombre);
 
-	boolean existsByCodigoAndCliente(String codigo, Cliente cliente);
+		boolean existsByRfProyecto(String rfProyecto);
 
-	List<Proyecto> findByCodigo(String codigo);
+		boolean existsByCodigoAndCliente(String codigo, Cliente cliente);
 
-	List<Proyecto> findByCliente(Cliente cliente);
+		List<Proyecto> findByCodigo(String codigo);
 
-	List<Proyecto> findByComponente(ComponenteDesarrollo componente);
+		List<Proyecto> findByCliente(Cliente cliente);
 
-	List<Proyecto> findByCodigoAndCliente(String codigo, Cliente cliente);
+		List<Proyecto> findByComponente(ComponenteDesarrollo componente);
 
-	List<Proyecto> findByCodigoAndComponente(String codigo, ComponenteDesarrollo componente);
+		List<Proyecto> findByCodigoAndCliente(String codigo, Cliente cliente);
 
-	List<Proyecto> findByCodigoAndClienteAndComponente(String codigo, Cliente cliente, ComponenteDesarrollo componente);
+		List<Proyecto> findByCodigoAndComponente(String codigo, ComponenteDesarrollo componente);
 
-	List<Proyecto> findByComponenteAndCliente(ComponenteDesarrollo componente, Cliente cliente);
+		List<Proyecto> findByCodigoAndClienteAndComponente(String codigo, Cliente cliente, ComponenteDesarrollo componente);
 
-	List<Proyecto> findByInterno(Boolean interno);
+		List<Proyecto> findByComponenteAndCliente(ComponenteDesarrollo componente, Cliente cliente);
 
-	List<Proyecto> findByLider(Empleado lider);
-}
+		List<Proyecto> findByInterno(Boolean interno);
+
+		List<Proyecto> findByLider(Empleado lider);
+	}

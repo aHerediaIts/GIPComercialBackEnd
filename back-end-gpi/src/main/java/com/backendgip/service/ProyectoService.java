@@ -53,5 +53,7 @@ public interface ProyectoService {
 
 	boolean existsByNombre(String nombre);
 
+	boolean existsByRfProyecto(String rfProyecto);
+
 	Integer getHorasPropuesta(Proyecto proyecto);
 }
