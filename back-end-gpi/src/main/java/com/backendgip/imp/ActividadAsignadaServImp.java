@@ -110,12 +110,14 @@ public class ActividadAsignadaServImp implements ActividadAsignadaService {
 		for (ActividadAsignada actividad : actividades) {
 			if(actividad.getFechaInicio() != null && actividad.getFechaFin() != null){
 				actividadFiltradosPorFechaFiltroFechaNula.add(actividad);
-			}}
+			}
+		}
 
 		for (ActividadAsignada actividad : actividadFiltradosPorFechaFiltroFechaNula) {
 			if((actividad.getFechaInicio().equals(fechaInicio) && actividad.getFechaFin().equals(fechaFin)) || (actividad.getFechaInicio().isAfter(fechaInicio) && actividad.getFechaFin().isBefore(fechaFin))){
 				actividadFiltradosPorFecha.add(actividad);
-			}}
+			}
+		}
 		System.out.println(actividadFiltradosPorFecha);
 		return 	actividadFiltradosPorFecha;
 				
