@@ -155,10 +155,9 @@ public class ProyectoController {
         if (proyecto.getRfProyecto() == null || proyecto.getRfProyecto().trim().isEmpty()) {
             proyecto.setRfProyecto(null);
         }
-        if (proyecto.getRfProyecto() != null && this.proyectoRepository.existsByRfProyecto(proyecto.getRfProyecto())){
+        if (proyecto.getRfProyecto() != null && this.proyectoRepository.existsByRfProyecto(proyecto.getRfProyecto())) {
             return ResponseEntity.badRequest().body("¡El Rf de proyecto ya existe!");
-        }
-        else if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
+        } else if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
             return ResponseEntity.badRequest().body("¡El nombre de proyecto ya existe!");
         } else if (this.proyectoRepository.existsByCodigoAndCliente(proyecto.getCodigo(), proyecto.getCliente())) {
             return ResponseEntity.badRequest().body("!El cliente ya tiene ese código asignado¡");
@@ -211,10 +210,10 @@ public class ProyectoController {
         if (proyectoDetails.getRfProyecto() == null || proyectoDetails.getRfProyecto().trim().isEmpty()) {
             proyectoDetails.setRfProyecto(null);
         }
-        if (proyectoDetails.getRfProyecto() != null && this.proyectoRepository.existsByRfProyecto(proyectoDetails.getRfProyecto())){
+        if (!proyectoDetails.getRfProyecto().equals(proyecto.getRfProyecto()) && proyectoDetails.getRfProyecto() != null
+                && this.proyectoRepository.existsByRfProyecto(proyectoDetails.getRfProyecto())) {
             return ResponseEntity.badRequest().body("¡El Rf de proyecto ya existe!");
-        }
-        else if (this.proyectoRepository.existsByNombre(proyectoDetails.getNombre())
+        } else if (this.proyectoRepository.existsByNombre(proyectoDetails.getNombre())
                 && proyecto.getId().intValue() != proyectoDetails.getId().intValue()) {
             return ResponseEntity.badRequest().body("¡El nombre de proyecto ya existe!");
         } else if (this.validEstadoProyecto(proyectoDetails) != null) {
@@ -274,10 +273,11 @@ public class ProyectoController {
                 log.setTabla(proyecto.getClass().toString());
                 this.logService.saveLog(log);
                 this.projectDataChange(proyectoDetails, creator);
-                
-                if (proyectoDetails.getDirectorClient() == null || proyectoDetails.getDirectorClient().trim().isEmpty()){
+
+                if (proyectoDetails.getDirectorClient() == null
+                        || proyectoDetails.getDirectorClient().trim().isEmpty()) {
                     proyecto.setDirectorClient(null);
-                }else{
+                } else {
                     proyecto.setDirectorClient(proyectoDetails.getDirectorClient());
                 }
 
@@ -317,15 +317,14 @@ public class ProyectoController {
         return ResponseEntity.ok(proyecto);
     }
 
-    @GetMapping({"/proyectos/carga-masiva/{nombre}"})
-    public ResponseEntity<Proyecto> findByNombre(@PathVariable String nombre){
+    @GetMapping({ "/proyectos/carga-masiva/{nombre}" })
+    public ResponseEntity<Proyecto> findByNombre(@PathVariable String nombre) {
         Proyecto proyecto = this.proyectoService.findByNombre(nombre);
-        if (proyecto == null){
+        if (proyecto == null) {
             throw new ResourceNotFoundException("No se encontró el proyecto con el nombre: " + nombre);
         }
         return ResponseEntity.ok(proyecto);
     }
-
 
     @DeleteMapping({ "/proyectos/{id}" })
     public ResponseEntity<?> deleteProyecto(@PathVariable Integer id) {
@@ -591,10 +590,11 @@ public class ProyectoController {
                 return ResponseEntity.ok(jsonData);
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al procesar el archivo de excel, la plantilla no es compatible.");
+            return ResponseEntity.badRequest()
+                    .body("Error al procesar el archivo de excel, la plantilla no es compatible.");
         }
     }
-    
+
     public void projectDataChange(Proyecto proyecto, Integer creator) {
         Proyecto oldProyecto = this.proyectoService.getProyectoById(proyecto.getId());
         String ca = "<style>\r\n    table {\r\n      border-collapse: collapse;\r\n      width: 100%;\r\n      border: solid #ccc 1px;\r\n    }\r\n    th, td {\r\n    text-align: center;\r\n    padding: 8px;\r\n    }\r\n    tr:nth-child(even){background-color: #f2f2f2}\r\n    th {\r\n      background-color: #59c3ec;\r\n      color: white;\r\n    }\r\n    </style>\r\n<body>\r\n";
