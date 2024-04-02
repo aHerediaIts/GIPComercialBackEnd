@@ -107,6 +107,7 @@ public class ClienteController {
 			cliente.setNombre(clienteDetails.getNombre());
 			cliente.setNomenclatura(clienteDetails.getNomenclatura());
 			cliente.setFechaCreacion(clienteDetails.getFechaCreacion());
+			cliente.setValidadorIdRecurso(clienteDetails.getValidadorIdRecurso());
 			EstadoCliente estado = this.estadoService.getEstadoById(clienteDetails.getEstado().getId());
 			cliente.setEstado(estado);
 			SectorCliente sector = this.sectorService.getSectorById(clienteDetails.getSector().getId());
