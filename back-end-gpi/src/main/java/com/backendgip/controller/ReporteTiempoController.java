@@ -174,6 +174,23 @@ public class ReporteTiempoController {
         return ResponseEntity.ok().body(reportesCreados);
     }
 
+
+    @PostMapping({"/reportes/enviar-int"})
+    public ResponseEntity<?> enviarProyectoInt(@RequestBody ReporteTiempo reporte) {
+        LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota"));
+        ActividadAsignada actividad = reporte.getActividad();
+        actividad.setFechaInicio(reporte.getFecha());
+        actividad.setFechaFin(reporte.getFecha());
+        if (reporte.getFecha().isAfter(fechaActual)) {
+            return ResponseEntity.badRequest().body("La fecha del reporte no puede ser mayor a la fecha actual");
+        } else {
+            this.actividadAsigService.saveActividad(actividad);
+            reporte.setEstado(this.estadoService.getEstadoReporteTiempoById(1));
+            ReporteTiempo createdReporte = this.reporteTiempoService.saveReporteTiempo(reporte);
+            return new ResponseEntity(createdReporte, HttpStatus.OK);
+        }
+    }
+
     @PostMapping({ "/reportes/enviar" })
     public ResponseEntity<?> enviar(@RequestBody ReporteTiempo reporte) {
         LocalDate fechaActual = LocalDate.now(ZoneId.of("America/Bogota"));
