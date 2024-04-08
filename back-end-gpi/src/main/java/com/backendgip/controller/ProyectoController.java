@@ -155,9 +155,8 @@ public class ProyectoController {
         if (proyecto.getRfProyecto() == null || proyecto.getRfProyecto().trim().isEmpty()) {
             proyecto.setRfProyecto(null);
         }
-        if (proyecto.getRfProyecto() != null && this.proyectoRepository.existsByRfProyecto(proyecto.getRfProyecto())) {
-            return ResponseEntity.badRequest().body("¡El Rf de proyecto ya existe!");
-        } else if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
+        
+        if (this.proyectoRepository.existsByNombre(proyecto.getNombre())) {
             return ResponseEntity.badRequest().body("¡El nombre de proyecto ya existe!");
         } else if (this.proyectoRepository.existsByCodigoAndCliente(proyecto.getCodigo(), proyecto.getCliente())) {
             return ResponseEntity.badRequest().body("!El cliente ya tiene ese código asignado¡");
@@ -210,10 +209,7 @@ public class ProyectoController {
         if (proyectoDetails.getRfProyecto() == null || proyectoDetails.getRfProyecto().trim().isEmpty()) {
             proyectoDetails.setRfProyecto(null);
         }
-        if (!proyectoDetails.getRfProyecto().equals(proyecto.getRfProyecto()) && proyectoDetails.getRfProyecto() != null
-                && this.proyectoRepository.existsByRfProyecto(proyectoDetails.getRfProyecto())) {
-            return ResponseEntity.badRequest().body("¡El Rf de proyecto ya existe!");
-        } else if (this.proyectoRepository.existsByNombre(proyectoDetails.getNombre())
+        if (this.proyectoRepository.existsByNombre(proyectoDetails.getNombre())
                 && proyecto.getId().intValue() != proyectoDetails.getId().intValue()) {
             return ResponseEntity.badRequest().body("¡El nombre de proyecto ya existe!");
         } else if (this.validEstadoProyecto(proyectoDetails) != null) {
