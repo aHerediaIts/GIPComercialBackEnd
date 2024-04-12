@@ -31,10 +31,12 @@ public interface ReporteTiempoRepository extends CrudRepository<ReporteTiempo, I
 
 	List<ReporteTiempo> findByFechaAfter(LocalDate fechaFin);
 
+	List<ReporteTiempo> findByFecha(LocalDate fecha);
+
 	List<ReporteTiempo>  findByEmpleadoAndFecha(Empleado empleado, LocalDate fecha);
 
 	List<ReporteTiempo> findByProyecto(Proyecto proyecto);
-
+	
 	List<ReporteTiempo> findByEmpleado(Empleado empleado);
 
 	List<ReporteTiempo> findByEstado(EstadoReporteTiempo estado);

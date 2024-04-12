@@ -15,6 +15,8 @@ public interface ReporteTiempoService {
 	
 	List<ReporteTiempo> getReporteTiempoPaging(int page, int size);
 
+	List<ReporteTiempo> getReporteTiempoFecha(LocalDate fecha);
+
 	ReporteTiempo saveReporteTiempo(ReporteTiempo reporteTiempo);
 
 	void deleteReporteTiempo(ReporteTiempo reporteTiempo);
@@ -44,4 +46,6 @@ public interface ReporteTiempoService {
 	List<LocalDate> getFechasBetween(LocalDate fechaInicio, LocalDate fechaFin);
 
 	List<ReporteTiempo> getAllReporteTiempoByIdEmpleados(Integer recursosAdd);
+
+	List<ReporteTiempo> getReporteTiempoFechaRf(LocalDate fechaInicio,List<Proyecto> proyecto);
 }

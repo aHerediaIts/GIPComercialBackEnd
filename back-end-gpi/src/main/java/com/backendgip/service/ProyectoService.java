@@ -33,6 +33,8 @@ public interface ProyectoService {
 
 	List<Proyecto> findByCodigo(String codigo);
 
+	List<Proyecto> findByRfProyecto(String rfProyecto);
+
 	List<Proyecto> findByCliente(Cliente cliente);
 
 	List<Proyecto> findByComponente(ComponenteDesarrollo componente);
@@ -50,6 +52,10 @@ public interface ProyectoService {
 	List<Proyecto> findByLider(Empleado lider);
 
 	List<Proyecto> findByLiderFechaInicioFechaFin(LocalDate fechaInicio, LocalDate fechaFin, Empleado lider);
+
+	List<Proyecto> getFechaInicioList(LocalDate fechaInicio);
+
+	List<Proyecto> getFechaProyectoInicioList(LocalDate fechaInicio, List<Proyecto> proyectos);
 
 	boolean existsByNombre(String nombre);
 

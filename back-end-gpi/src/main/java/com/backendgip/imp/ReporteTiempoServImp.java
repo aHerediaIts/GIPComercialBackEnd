@@ -44,8 +44,15 @@ public class ReporteTiempoServImp implements ReporteTiempoService {
 	}
 
 	public List<ReporteTiempo> getReporteTiempoFechaAfter(LocalDate fechaInicio) {
-		List<ReporteTiempo> reporteTiempo = (List) this.reporteTiempoRepository.findByFechaAfter(fechaInicio);
-		return reporteTiempo;
+		return (List) this.reporteTiempoRepository.findByFechaAfter(fechaInicio);
+	}
+
+	public List<ReporteTiempo> getReporteTiempoFecha(LocalDate fecha) {
+		/*List<ReporteTiempo> reportesSalida = this.reporteTiempoRepository.existsByFecha(fecha);
+		for(ReporteTiempo reporte: reportesSalida){
+			System.out.println("reporte"+reporte+"\n"+"\n"+"\n");
+		}*/
+		return (List) this.reporteTiempoRepository.findByFecha(fecha);
 	}
 
 	public List<ReporteTiempo> getReporteTiempoPaging(int page, int size) {
@@ -141,9 +148,27 @@ public class ReporteTiempoServImp implements ReporteTiempoService {
 		return fechas;
 	}
 
-	@Override
 	public List<ReporteTiempo> getAllReporteTiempoByIdEmpleados(Integer recursosAdd) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getAllReporteTiempoByIdEmpleados'");
 	}
+
+	public List<ReporteTiempo> getReporteTiempoFechaRf(LocalDate fechaInicio, List<Proyecto> proyecto) {
+		List<ReporteTiempo> reportesSalida = new ArrayList<>();
+		List<ReporteTiempo> reporteTiempo = (List) this.reporteTiempoRepository.findByFecha(fechaInicio);
+		for(Proyecto filtroProyecto: proyecto){
+			for(ReporteTiempo filtroFecha: reporteTiempo){
+				if(filtroFecha != null){
+					if(filtroFecha.getProyecto().getRfProyecto() == filtroProyecto.getRfProyecto()){
+						reportesSalida.add(filtroFecha);
+					}
+				}
+			}
+		}
+		return reportesSalida;
+	}
+
+	
+
+	
 }

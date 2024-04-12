@@ -9,8 +9,11 @@ import com.backendgip.service.TipoReporteService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,13 +21,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backendgip.model.RecursoActividad;
+import com.backendgip.model.ReporteAnual;
 import com.backendgip.model.ReporteTiempo;
 import com.backendgip.service.RecursoActividadService;
 import com.backendgip.service.ReporteTiempoService;
 import com.backendgip.model.Proyecto;
 import com.backendgip.repository.ProyectoRepository;
 import com.backendgip.service.ActividadAsignadaService;
+import com.backendgip.service.ParametriaRecursosMatrizTiempoService;
 import com.backendgip.model.ActividadAsignada;
+import com.backendgip.model.ParametriaRecursosMatrizTiempo;
 
 @RestController
 @Transactional
@@ -42,6 +48,8 @@ public class SeguimientoReportesController {
 	private ProyectoService proyectoservice; 
 	@Autowired
     private ReporteTiempoService reporteTiempoService;
+	@Autowired
+    private ParametriaRecursosMatrizTiempoService parametriaRecursosMatrizTiempoService;
 
     public SeguimientoReportesController(){
     }
@@ -56,7 +64,9 @@ public class SeguimientoReportesController {
 		List<RecursoActividad> resportessalida = new ArrayList<>();
 		List<RecursoActividad> recursosActividad = this.buscarActividades(rf_proyecto, fechaInicio, fechaFin);
 		for(RecursoActividad recursos_actividad: recursosActividad){
-			if(recursos_actividad.getActividad().getProyecto().getEstadoProyecto().getId() == 8 || "CERRADO".equals(recursos_actividad.getActividad().getProyecto().getEstadoProyecto().getEstado())){
+			if("CERRADO".equals(recursos_actividad.getActividad().getProyecto().getEstadoProyecto().getEstado()) ||
+			"FINALIZADO".equals(recursos_actividad.getActividad().getProyecto().getEstadoProyecto().getEstado()) ||
+			"CANCELADO".equals(recursos_actividad.getActividad().getProyecto().getEstadoProyecto().getEstado())){
 				resportessalida.add( recursos_actividad );
 			}
 		}
@@ -64,13 +74,39 @@ public class SeguimientoReportesController {
     }
 
 	@GetMapping("/reporte/anual/{fechaInicio}/{fechaFin}/{rf_proyecto}")
-	public List<RecursoActividad> getAllProyectosAnuales(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
-		List<RecursoActividad> resportessalida = new ArrayList<>();
-		List<RecursoActividad> recursosActividad = this.buscarActividades(rf_proyecto, fechaInicio, fechaFin);
-		for(RecursoActividad recursos_actividad: recursosActividad){
-				resportessalida.add(recursos_actividad);
+	public List<Proyecto> getAllProyectosAnuales(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
+		LocalDate fechaI = this.stringToLocalDate(fechaInicio);
+		LocalDate fechaF = this.stringToLocalDate(fechaFin);
+		LocalDate fechaActual = fechaI;
+		List<Proyecto> resportesSalida = new ArrayList<>();
+		List<Proyecto> reportesFecha = new ArrayList<>();
+		List<Proyecto> proyectosRf = this.proyectoservice.findByRfProyecto(rf_proyecto);
+		if( "VACIO".equals(rf_proyecto)){
+			while (!fechaActual.isAfter(fechaF)) {
+				reportesFecha = this.proyectoservice.getFechaInicioList(fechaActual);
+				for(Proyecto reporte: reportesFecha){
+					if(reporte != null){
+						if (reporte.getFechaFin().compareTo(fechaF) < 0) {
+							resportesSalida.add(reporte);
+						}
+					}
+				}
+				fechaActual = fechaActual.plusDays(1);	
+			}
+		}else{
+			while (!fechaActual.isAfter(fechaF)) {
+				reportesFecha = this.proyectoservice.getFechaProyectoInicioList(fechaI, proyectosRf);
+				for(Proyecto reporte: reportesFecha){
+					if(reporte != null){
+						if (reporte.getFechaFin().compareTo(fechaF) < 0) {
+							resportesSalida.add(reporte);
+						}
+					}
+				}
+				fechaActual = fechaActual.plusDays(1);	
+			}
 		}
-		return resportessalida;
+		return resportesSalida;
 	}
 
 	@GetMapping("/reporte/alfa/{fechaInicio}/{fechaFin}/{rf_proyecto}")
@@ -83,32 +119,38 @@ public class SeguimientoReportesController {
         return resportessalida;
 	}
 
-	@GetMapping("/reporte/control-horas/{fechaInicio}/{fechaFin}")
-	public List<ReporteTiempo> getReporteTiempo(@PathVariable String fechaInicio,@PathVariable String fechaFin) {
+	@GetMapping("/reporte/control-horas/{fechaInicio}/{fechaFin}/{rf_proyecto}")
+	public List<ReporteTiempo> getReporteTiempo(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
 		LocalDate fechaI = this.stringToLocalDate(fechaInicio);
 		LocalDate fechaF = this.stringToLocalDate(fechaFin);
-		LocalDate fechaActual = fechaI.plusDays(1);
+		LocalDate fechaActual = fechaI;
 		List<ReporteTiempo> reportesSalida = new ArrayList<>();
-		List<ReporteTiempo> reporte = this.reporteTiempoService.getReporteTiempoFechaAfter(fechaActual);
-			System.out.println(fechaActual);
-			System.out.println(reporte);
-			for(ReporteTiempo report: reporte){
-				if( report != null){
-					reportesSalida.add(report);
-				}
-			}
+		List<ReporteTiempo> reportes = new ArrayList<>();
+		List<Proyecto> proyectos = this.proyectoservice.findByRfProyecto(rf_proyecto);
 
-        while (!fechaActual.isAfter(fechaF)) {
-			List<ReporteTiempo> reportes = this.reporteTiempoService.getReporteTiempoFechaAfter(fechaActual);
-			System.out.println(fechaActual);
-			System.out.println(reportes);
-			for(ReporteTiempo report: reportes){
-				if( report != null){
-					reportesSalida.add(report);
+		if( "VACIO".equals(rf_proyecto)){
+			while (!fechaActual.isAfter(fechaF)) {
+				reportes = this.reporteTiempoService.getReporteTiempoFecha(fechaActual);
+				for(ReporteTiempo reporte: reportes){
+					if(reporte != null){
+						reportesSalida.add(reporte);
+					}
 				}
+				fechaActual = fechaActual.plusDays(1);	
 			}
-			fechaActual = fechaActual.plusDays(1);
-        }
+			
+		}else{
+			while (!fechaActual.isAfter(fechaF)) {
+				reportes = this.reporteTiempoService.getReporteTiempoFechaRf(fechaActual, proyectos);	
+				for(ReporteTiempo reporte: reportes){
+					if(reporte != null){
+						reportesSalida.add(reporte);
+					}
+				}				
+				fechaActual = fechaActual.plusDays(1);
+			}
+		}
+
 		return reportesSalida;
 	}
 
@@ -151,7 +193,6 @@ public class SeguimientoReportesController {
 			    }
 		    }
 			if( "VACIO".equals(rf_proyecto)){
-				System.out.println("entra");
 				List<ActividadAsignada> Actividades = this.actividadAsignada.getActividadFechasProyecto(fechaI, fechaF, proyecto);
 				for(ActividadAsignada actividad: Actividades){
 						List<RecursoActividad> recursosActividad = this.recursoActividadService.findByActividad(actividad);	
@@ -174,11 +215,9 @@ public class SeguimientoReportesController {
         
         LocalDate fechaActual = fechaInicio.plusDays(1); // Empezar desde el día siguiente a la fecha de inicio
         while (!fechaActual.isAfter(fechaFin)) {
-			System.out.println(fechaActual);
             fechasRecorridas.add(fechaActual);
             fechaActual = fechaActual.plusDays(1);
         }
-        System.out.println(fechasRecorridas);
         return fechasRecorridas;
     }
 

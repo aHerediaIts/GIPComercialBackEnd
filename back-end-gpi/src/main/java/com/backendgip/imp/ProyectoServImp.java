@@ -183,4 +183,28 @@ public class ProyectoServImp implements ProyectoService {
 	public Proyecto findByNombre(String nombre) {
 		return this.proyectoRepository.findByNombre(nombre);
 	}
+
+	@Override
+	public List<Proyecto> findByRfProyecto(String rfProyecto) {
+		return this.proyectoRepository.findByRfProyecto(rfProyecto);
+	}
+
+	@Override
+	public List<Proyecto> getFechaInicioList(LocalDate fechaInicio) {
+		return this.proyectoRepository.findByFechaInicio(fechaInicio);
+	}
+
+	@Override
+	public List<Proyecto> getFechaProyectoInicioList(LocalDate fechaInicio, List<Proyecto> proyectos) {
+		List<Proyecto> reporteFecha = this.proyectoRepository.findByFechaInicio(fechaInicio);
+		List<Proyecto> reporteSalida = new ArrayList<>(); 
+		for(Proyecto filtroFecha: reporteFecha){
+			for(Proyecto proyectoRf: proyectos){
+				if(filtroFecha.getRfProyecto() == proyectoRf.getRfProyecto()){
+					reporteSalida.add(filtroFecha);
+				}
+			}
+		}
+		return reporteSalida;
+	}
 }

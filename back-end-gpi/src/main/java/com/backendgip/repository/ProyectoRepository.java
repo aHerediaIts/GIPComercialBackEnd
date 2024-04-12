@@ -14,6 +14,8 @@
 	import java.util.List;
 	import org.springframework.data.repository.CrudRepository;
 	import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
+
 
 	@Repository
 	public interface ProyectoRepository extends CrudRepository<Proyecto, Integer> {
@@ -33,6 +35,8 @@
 
 		boolean existsByCodigoAndCliente(String codigo, Cliente cliente);
 
+		List<Proyecto> findByRfProyecto(String rfProyecto);
+		
 		List<Proyecto> findByCodigo(String codigo);
 
 		List<Proyecto> findByCliente(Cliente cliente);
@@ -50,4 +54,6 @@
 		List<Proyecto> findByInterno(Boolean interno);
 
 		List<Proyecto> findByLider(Empleado lider);
+
+		List<Proyecto> findByFechaInicio(LocalDate fechaInicio);
 	}
