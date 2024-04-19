@@ -1,7 +1,7 @@
 package com.backendgip.controller;
 
 import com.backendgip.model.TipoReporte;
-
+import com.backendgip.model.ValorTotalRecurso;
 import com.backendgip.repository.TipoReporteRepository;
 import com.backendgip.service.ProyectoService;
 import com.backendgip.service.TipoReporteService;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backendgip.model.RecursoActividad;
 import com.backendgip.model.ReporteAnual;
+import com.backendgip.model.ReporteControlHoras;
 import com.backendgip.model.ReporteTiempo;
 import com.backendgip.service.RecursoActividadService;
 import com.backendgip.service.ReporteTiempoService;
@@ -120,11 +121,13 @@ public class SeguimientoReportesController {
 	}
 
 	@GetMapping("/reporte/control-horas/{fechaInicio}/{fechaFin}/{rf_proyecto}")
-	public List<ReporteTiempo> getReporteTiempo(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
+	public List<ReporteControlHoras> getReporteTiempo(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
 		LocalDate fechaI = this.stringToLocalDate(fechaInicio);
 		LocalDate fechaF = this.stringToLocalDate(fechaFin);
 		LocalDate fechaActual = fechaI;
-		List<ReporteTiempo> reportesSalida = new ArrayList<>();
+		LocalDate fechaValidadorMes = fechaI;
+		List<ReporteControlHoras> reportesSalida = new ArrayList<>();
+		List<ReporteTiempo> reportesFecha = new ArrayList<>();
 		List<ReporteTiempo> reportes = new ArrayList<>();
 		List<Proyecto> proyectos = this.proyectoservice.findByRfProyecto(rf_proyecto);
 
@@ -133,7 +136,7 @@ public class SeguimientoReportesController {
 				reportes = this.reporteTiempoService.getReporteTiempoFecha(fechaActual);
 				for(ReporteTiempo reporte: reportes){
 					if(reporte != null){
-						reportesSalida.add(reporte);
+						reportesFecha.add(reporte);
 					}
 				}
 				fechaActual = fechaActual.plusDays(1);	
@@ -144,14 +147,89 @@ public class SeguimientoReportesController {
 				reportes = this.reporteTiempoService.getReporteTiempoFechaRf(fechaActual, proyectos);	
 				for(ReporteTiempo reporte: reportes){
 					if(reporte != null){
-						reportesSalida.add(reporte);
+						reportesFecha.add(reporte);
 					}
 				}				
 				fechaActual = fechaActual.plusDays(1);
 			}
 		}
-
+		while (!fechaValidadorMes.isAfter(fechaF)) {
+			int valorTotal;
+			for (int i = 0; i < reportesFecha.size(); i++) {
+				ReporteControlHoras controlHoras =  new ReporteControlHoras();
+				valorTotal = 0;
+				ReporteTiempo reporteActual = reportesFecha.get(i);
+				valorTotal = reporteActual.getHoras();
+				for (int j = i + 1; j < reportesFecha.size(); j++) {
+					ReporteTiempo otroReporte = reportesFecha.get(j);
+					if(reporteActual.getFecha().getMonth() == otroReporte.getFecha().getMonth()){
+						if (reporteActual.getEmpleado() == otroReporte.getEmpleado()) {
+							if(reporteActual.getProyecto() == otroReporte.getProyecto()){
+								//System.out.println("El reporte en la posición " + i + " es igual al reporte en la posición " + j);
+								valorTotal = valorTotal + otroReporte.getHoras();
+								reportesFecha.remove(j);
+							}
+						}
+					}	
+				}
+				controlHoras.setReporte(reporteActual);
+				controlHoras.setTotalHoras(valorTotal);
+				System.out.println(valorTotal);
+				reportesFecha.remove(i);
+				reportesSalida.add(controlHoras);
+			}
+			fechaValidadorMes = fechaValidadorMes.plusDays(1);
+		}
+		System.out.println(reportesSalida);
 		return reportesSalida;
+	}
+
+	@GetMapping("/reporte/control-total-horas/{fechaInicio}/{fechaFin}/{rf_proyecto}")
+	public List<ValorTotalRecurso> getReportesTotales(@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
+    LocalDate fechaI = this.stringToLocalDate(fechaInicio);
+    LocalDate fechaF = this.stringToLocalDate(fechaFin);
+    LocalDate fechaActual = fechaI;
+    List<ValorTotalRecurso> reportesSalida = new ArrayList<>();
+    List<ReporteTiempo> reportes = new ArrayList<>();
+    List<Proyecto> proyectos = this.proyectoservice.findByRfProyecto(rf_proyecto);
+    List<ParametriaRecursosMatrizTiempo> ParametriaRecursosMatrizTiempo = this.parametriaRecursosMatrizTiempoService.getParametriaRecursos();
+
+    if ("VACIO".equals(rf_proyecto)) {
+        while (!fechaActual.isAfter(fechaF)) {
+            reportes = this.reporteTiempoService.getReporteTiempoFecha(fechaActual);
+            for (ReporteTiempo reporte : reportes) {
+                ValorTotalRecurso valorTotalRecurso = new ValorTotalRecurso();
+                valorTotalRecurso.setReporteTiempo(reporte);
+                for (ParametriaRecursosMatrizTiempo parametria : ParametriaRecursosMatrizTiempo) {
+                    if (reporte.getEmpleado().equals(parametria.getEmpleado())) {
+                        double total = parametria.getTarifaHora() * reporte.getHoras();
+                        valorTotalRecurso.setTotal(total);
+                        break; 
+                    }
+                }
+                reportesSalida.add(valorTotalRecurso);
+            }
+            fechaActual = fechaActual.plusDays(1);
+        }
+    } else {
+        while (!fechaActual.isAfter(fechaF)) {
+            reportes = this.reporteTiempoService.getReporteTiempoFechaRf(fechaActual, proyectos);
+            for (ReporteTiempo reporte : reportes) {
+                ValorTotalRecurso valorTotalRecurso = new ValorTotalRecurso();
+                valorTotalRecurso.setReporteTiempo(reporte);
+                for (ParametriaRecursosMatrizTiempo parametria : ParametriaRecursosMatrizTiempo) {
+                    if (reporte.getEmpleado().equals(parametria.getEmpleado())) {
+                        double total = parametria.getTarifaHora() * reporte.getHoras();
+                        valorTotalRecurso.setTotal(total);
+                        break; 
+                    }
+                }
+                reportesSalida.add(valorTotalRecurso);
+            }
+            fechaActual = fechaActual.plusDays(1);
+        }
+    }
+    return reportesSalida;
 	}
 
 	@GetMapping("/proyectos")
