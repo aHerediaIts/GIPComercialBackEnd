@@ -86,4 +86,7 @@ public class RecursoActividad implements Serializable {
 		return "RecursoActividad [id=" + this.id + ", fecha=" + this.fecha + ", actividad=" + this.actividad
 				+ ", empleado=" + this.empleado + ", asignador=" + this.asignador + "]";
 	}
+
+ 
+	
 }

@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backendgip.model.RecursoActividad;
 import com.backendgip.model.ReporteAnual;
+
+import com.backendgip.model.ActividadProyectoVencer;
 import com.backendgip.model.ReporteControlHoras;
 import com.backendgip.model.ReporteTiempo;
 import com.backendgip.service.RecursoActividadService;
@@ -231,6 +233,27 @@ public class SeguimientoReportesController {
     }
     return reportesSalida;
 	}
+	
+	@GetMapping("/reporte/actividad-proyecto-vencer/{fechaInicio}/{fechaFin}/{rf_proyecto}")
+	public List<ActividadProyectoVencer> getActividadesProyectoVencer(
+			@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
+		List<ActividadProyectoVencer> actividadesProyectoVencer = new ArrayList<>();
+	
+		List<RecursoActividad> recursosActividad = buscarActividades(rf_proyecto, fechaInicio, fechaFin);
+		
+		// Iterar sobre los recursos de actividad
+		for (RecursoActividad recursoActividad : recursosActividad) {
+			// Obtener el proyecto asociado al recurso de actividad
+			Proyecto proyecto = recursoActividad.getActividad().getProyecto();
+			// Agregar la actividad de proyecto junto con el recurso de actividad a la lista de resultados
+			actividadesProyectoVencer.add(new ActividadProyectoVencer(proyecto, recursoActividad));
+		}
+		
+		return actividadesProyectoVencer;
+	}
+	
+
+   
 
 	@GetMapping("/proyectos")
 	public List<String> getlistProyectos() {
