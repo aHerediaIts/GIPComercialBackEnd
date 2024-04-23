@@ -8,14 +8,19 @@ public class ReporteProyectosVencer {
     private RecursoActividad recursoActividad;
 
     // Constructor
-    public ActividadProyectoVencer(Proyecto proyecto, RecursoActividad recursoActividad) {
-        this.proyecto = proyecto;
-        this.recursoActividad = recursoActividad;
-    }
+ 
 
     // Getters y Setters (opcional, dependiendo de tus necesidades)
     public Proyecto getProyecto() {
         return proyecto;
+    }
+
+    public ReporteProyectosVencer() {
+    }
+
+    public ReporteProyectosVencer(Proyecto proyecto, RecursoActividad recursoActividad) {
+        this.proyecto = proyecto;
+        this.recursoActividad = recursoActividad;
     }
 
     public void setProyecto(Proyecto proyecto) {
