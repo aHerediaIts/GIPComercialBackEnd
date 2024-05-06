@@ -27,6 +27,7 @@ public interface ActividadRepository extends CrudRepository<Actividad, Integer> 
 	boolean existsByProyecto(Proyecto proyecto);
 
 	List<Actividad> findByFase(FaseProyecto fase);
+	
 
 	boolean existsByActividad(String actividad);
 

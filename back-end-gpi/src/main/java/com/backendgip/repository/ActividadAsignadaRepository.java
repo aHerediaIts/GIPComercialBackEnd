@@ -11,6 +11,8 @@ import com.backendgip.model.Proyecto;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
+
 
 @Repository
 public interface ActividadAsignadaRepository extends CrudRepository<ActividadAsignada, Integer> {
@@ -21,4 +23,6 @@ public interface ActividadAsignadaRepository extends CrudRepository<ActividadAsi
 	Boolean existsByActividad(Actividad actividad);
 
 	List<ActividadAsignada> findByActividad(Actividad actividad);
+
+	List<ActividadAsignada> findByFechaFin(LocalDate fechaFin);
 }

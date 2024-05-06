@@ -21,6 +21,7 @@ import com.backendgip.service.LogSistemaService;
 import com.backendgip.service.SectorClienteService;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +65,17 @@ public class ClienteController {
 	@GetMapping({ "/clientes" })
 	public List<Cliente> getClientes() {
 		return this.clienteService.getClientes();
+	}
+
+	@GetMapping({ "/clientes/nombre" })
+	public List<String> getClientesNombres() {
+
+		List<Cliente> cl = this.clienteService.getClientes();
+		List<String> clNombre = new ArrayList<>();
+		for(Cliente nombre: cl){
+			clNombre.add(nombre.getNombre());
+		}
+		return clNombre;
 	}
 
 	@PostMapping({ "/clientes" })
