@@ -44,7 +44,6 @@ public class menuController {
 	@GetMapping("/consultarMenu/{idEmpleado}")
 	public ResponseEntity<?> consultarMenu(HttpServletRequest request, @PathVariable Integer idEmpleado){
 
-		logger.info("ENTROOOOOOOOOOOOÓ");
 		HashMap<String, Object>response= new HashMap<String, Object>();
 		List<MenuResponse> menuResponse =new ArrayList<>();
 		Usuario usuario;
@@ -52,8 +51,6 @@ public class menuController {
 		try {
 			if(idEmpleado!=null) {
 			usuario=usuarioService.buscaPorEmpleadoAsociado(idEmpleado);
-			System.out.println("USUARIO ENCONTRADOOOOOOOOOO");
-            System.out.println(usuario.getUsername());
 
 			menuResponse=armaMenu.armarMenu(usuario.getUsuarioRoles().get(0).getRol());
 			if(menuResponse.size()==0) {
