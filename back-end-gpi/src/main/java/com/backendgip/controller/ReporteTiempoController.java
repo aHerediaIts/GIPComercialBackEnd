@@ -20,6 +20,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.*;
 
+
 @RestController
 @Transactional
 @RequestMapping({ "/api/proyectos/reporte-tiempo" })
@@ -56,6 +57,8 @@ public class ReporteTiempoController {
     private MailService mailService;
     @Autowired
     private RecursoActividadService recursoActService;
+    @Autowired
+    private ActividadService actividadService;
 
     public ReporteTiempoController() {
     }
@@ -143,6 +146,9 @@ public class ReporteTiempoController {
         }
         return new ArrayList<>();
     }
+
+   
+    
 
     @PostMapping("/reportes/carga-masiva")
     public ResponseEntity<?> cargaMasiva(@RequestBody List<ReporteTiempo> reportes) {

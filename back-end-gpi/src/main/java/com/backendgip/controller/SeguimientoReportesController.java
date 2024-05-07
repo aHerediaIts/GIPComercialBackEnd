@@ -89,9 +89,9 @@ public class SeguimientoReportesController {
 				reportesFecha = this.proyectoservice.getFechaInicioList(fechaActual);
 				for(Proyecto reporte: reportesFecha){
 					if(reporte != null){
-						if (reporte.getFechaFin().compareTo(fechaF) < 0) {
+						
 							resportesSalida.add(reporte);
-						}
+						
 					}
 				}
 				fechaActual = fechaActual.plusDays(1);	
@@ -101,9 +101,9 @@ public class SeguimientoReportesController {
 				reportesFecha = this.proyectoservice.getFechaProyectoInicioList(fechaI, proyectosRf);
 				for(Proyecto reporte: reportesFecha){
 					if(reporte != null){
-						if (reporte.getFechaFin().compareTo(fechaF) < 0) {
+						
 							resportesSalida.add(reporte);
-						}
+
 					}
 				}
 				fechaActual = fechaActual.plusDays(1);	
@@ -167,7 +167,6 @@ public class SeguimientoReportesController {
 					if(reporteActual.getFecha().getMonth() == otroReporte.getFecha().getMonth()){
 						if (reporteActual.getEmpleado() == otroReporte.getEmpleado()) {
 							if(reporteActual.getProyecto() == otroReporte.getProyecto()){
-								//System.out.println("El reporte en la posición " + i + " es igual al reporte en la posición " + j);
 								valorTotal = valorTotal + otroReporte.getHoras();
 								reportesFecha.remove(j);
 							}
@@ -176,13 +175,12 @@ public class SeguimientoReportesController {
 				}
 				controlHoras.setReporte(reporteActual);
 				controlHoras.setTotalHoras(valorTotal);
-				System.out.println(valorTotal);
 				reportesFecha.remove(i);
 				reportesSalida.add(controlHoras);
 			}
 			fechaValidadorMes = fechaValidadorMes.plusDays(1);
 		}
-		System.out.println(reportesSalida);
+
 		return reportesSalida;
 	}
 

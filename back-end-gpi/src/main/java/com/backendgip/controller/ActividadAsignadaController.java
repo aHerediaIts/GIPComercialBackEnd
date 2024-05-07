@@ -207,6 +207,24 @@ public class ActividadAsignadaController {
 		return ResponseEntity.ok(this.actividadService.findByActividad(actividad));
 	}
 
+	@GetMapping({ "/actividades-asig/vencidos" })
+    public List<ActividadAsignada> getReportesVencidos() {
+        List<ActividadAsignada> reporteSalida = new ArrayList<>();
+        LocalDate fechaActual = LocalDate.now();
+        LocalDate fechaFinal = fechaActual.plusDays(15);
+        while (fechaActual.isBefore(fechaFinal) || fechaActual.isEqual(fechaFinal)) {
+            List<ActividadAsignada> reportes = (List<ActividadAsignada>) this.actividadRepository.findByFechaFin(fechaActual);
+            for(ActividadAsignada report: reportes){
+                if (report.getFechaFin().equals(fechaActual)) {
+                    
+                    reporteSalida.add(report);
+                }
+            }
+            fechaActual = fechaActual.plusDays(1);
+        }
+        return reporteSalida;
+    }
+
 	public void deletePlaneacionForUpdateActividadAsig(ActividadAsignada oldA, ActividadAsignada newA) {
 		List<LocalDate> fechas = this.empleadoService.getFechasBetween(oldA.getFechaInicio(), oldA.getFechaFin());
 		List<LocalDate> fechas2 = this.empleadoService.getFechasBetween(newA.getFechaInicio(), newA.getFechaFin());
