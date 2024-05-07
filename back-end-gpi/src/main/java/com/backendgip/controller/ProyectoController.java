@@ -23,7 +23,6 @@ import com.backendgip.model.Proyecto;
 import com.backendgip.repository.ActividadAsignadaRepository;
 import com.backendgip.repository.ActividadRepository;
 import com.backendgip.repository.EmpleadoRepository;
-import com.backendgip.repository.FacturacionRepository;
 import com.backendgip.repository.FaseProyectoRepository;
 import com.backendgip.repository.ProyectoRepository;
 import com.backendgip.service.ClienteService;
@@ -91,8 +90,6 @@ public class ProyectoController {
     private LogSistemaService logService;
     @Autowired
     private ActividadAsignadaRepository actividadAsigRepository;
-    @Autowired
-    private FacturacionRepository facturacionRepository;
     @Autowired
     private FaseProyectoRepository faseRepository;
     @Autowired
@@ -222,8 +219,7 @@ public class ProyectoController {
                 if (this.validDatesProyecto(proyectoDetails) != null) {
                     return this.validDatesProyecto(proyectoDetails);
                 } else if (this.validDifferentDates(proyecto, proyectoDetails)
-                        || !this.actividadRepository.existsByProyecto(proyecto)
-                                && !this.facturacionRepository.existsByProyecto(proyecto)) {
+                        || !this.actividadRepository.existsByProyecto(proyecto)) {
                     this.projectDataChange(proyectoDetails, creator);
                     if (proyectoDetails.getRfProyecto() == null || proyectoDetails.getRfProyecto().trim().isEmpty()) {
                         proyecto.setRfProyecto(null);
@@ -330,9 +326,6 @@ public class ProyectoController {
         if (this.actividadAsigRepository.existsByProyecto(proyecto)) {
             return ResponseEntity.badRequest()
                     .body("No se puede eliminar el Proyecto, Tiene relacion con Actividad Asignada.");
-        } else if (this.facturacionRepository.existsByProyecto(proyecto)) {
-            return ResponseEntity.badRequest()
-                    .body("No se puede eliminar el Proyecto, Tiene relacion con Facturacion.");
         } else if (this.faseRepository.existsByProyecto(proyecto)) {
             return ResponseEntity.badRequest()
                     .body("No se puede eliminar el Proyecto, Tiene relacion con Fase proyecto.");

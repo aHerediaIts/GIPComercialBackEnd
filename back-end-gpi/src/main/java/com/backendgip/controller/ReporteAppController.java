@@ -6,16 +6,12 @@
 package com.backendgip.controller;
 
 import com.backendgip.model.Empleado;
-import com.backendgip.model.Facturacion;
 import com.backendgip.model.Proyecto;
-import com.backendgip.model.ReporteFacturacionCliente;
-import com.backendgip.model.ReporteProyectoRecurso;
 import com.backendgip.model.ReporteTiempo;
 import com.backendgip.model.ReporteTiempoCliente;
 import com.backendgip.model.ReporteTiempoEmpleado;
 import com.backendgip.service.ClienteService;
 import com.backendgip.service.EmpleadoService;
-import com.backendgip.service.FacturacionService;
 import com.backendgip.service.ProyectoService;
 import com.backendgip.service.RecursoActividadService;
 import com.backendgip.service.ReporteTiempoService;
@@ -46,8 +42,6 @@ public class ReporteAppController {
     private EmpleadoService empleadoService;
     @Autowired
     private ProyectoService proyectoService;
-    @Autowired
-    private FacturacionService facturacionService;
     @Autowired
     private ClienteService clienteService;
     @Autowired
@@ -159,47 +153,6 @@ public class ReporteAppController {
         return reportes;
     }
 
-    @GetMapping({"/clientes/facturacion/{fechaInicio}/{fechaFin}/{clientesString}"})
-    public ResponseEntity<?> findAllReportesFacturacionCliente(@PathVariable String fechaInicio,
-                                                               @PathVariable String fechaFin, @PathVariable String clientesString) {
-        LocalDate fechaI = this.stringToLocalDate(fechaInicio);
-        LocalDate fechaF = this.stringToLocalDate(fechaFin);
-        String[] clientesArray = clientesString.split(",");
-        List<Proyecto> proyectos = this.getProyectosBetweenFechaInicioAndFechaFin(fechaI, fechaF, clientesArray);
-        List<ReporteFacturacionCliente> reportes = new ArrayList();
-        Iterator var9 = proyectos.iterator();
-
-        while (var9.hasNext()) {
-            Proyecto p = (Proyecto) var9.next();
-            List<Facturacion> cobros = this.facturacionService.getCobrosByProyecto(p);
-
-            ReporteFacturacionCliente reporte;
-            for (Iterator var12 = cobros.iterator(); var12.hasNext(); reportes.add(reporte)) {
-                Facturacion c = (Facturacion) var12.next();
-                reporte = new ReporteFacturacionCliente();
-                reporte.setCliente(p.getCliente().getNombre());
-                reporte.setProyecto(p.getNombre());
-                reporte.setdescripcion(p.getDescripcion());
-                reporte.setnPagos(this.facturacionService.getCobrosByProyecto(p).size());
-                reporte.setPorcentaje(c.getPorcentaje());
-                reporte.setPrecio(c.getValorPagar());
-                reporte.setFechaPlaneada(c.getFechaPlaneada().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                reporte.setEstado(c.getEstado().getEstado());
-                reporte.setValorAprobado(p.getCosto());
-                reporte.setValorCobrado(this.getValorCobradoReporteFacturacionCliente(p));
-                reporte.setFacturasPagas(this.getFacturasPagasReporteFacturacionCliente(cobros));
-                reporte.setFacturasPendientes(this.getFacturasPendientesReporteFacturacionCliente(cobros));
-                if (c.getFechaPago() != null) {
-                    reporte.setFechaPago(c.getFechaPago().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                } else {
-                    reporte.setFechaPago("");
-                }
-            }
-        }
-
-        return ResponseEntity.ok(reportes);
-    }
-
     public List<Proyecto> getProyectosBetweenFechaInicioAndFechaFin(LocalDate fechaInicio, LocalDate fechaFin,
                                                                     String[] clientes) {
         List<Proyecto> proyectosList = new ArrayList();
@@ -243,49 +196,6 @@ public class ReporteAppController {
         }
 
         return proyectos;
-    }
-
-    public Integer getValorCobradoReporteFacturacionCliente(Proyecto proyecto) {
-        List<Facturacion> cobros = this.facturacionService.getCobrosByProyecto(proyecto);
-        Integer totalValor = 0;
-        Iterator var4 = cobros.iterator();
-
-        while (var4.hasNext()) {
-            Facturacion c = (Facturacion) var4.next();
-            if (c.getEstado().getEstado().equalsIgnoreCase("FACTURADO")) {
-                totalValor = totalValor + c.getValorPagado();
-            }
-        }
-
-        return totalValor;
-    }
-
-    public Integer getFacturasPagasReporteFacturacionCliente(List<Facturacion> cobros) {
-        Integer total = 0;
-        Iterator var3 = cobros.iterator();
-
-        while (var3.hasNext()) {
-            Facturacion c = (Facturacion) var3.next();
-            if (c.getEstado().getEstado().equalsIgnoreCase("FACTURADO")) {
-                total = total + 1;
-            }
-        }
-
-        return total;
-    }
-
-    public Integer getFacturasPendientesReporteFacturacionCliente(List<Facturacion> cobros) {
-        Integer total = 0;
-        Iterator var3 = cobros.iterator();
-
-        while (var3.hasNext()) {
-            Facturacion c = (Facturacion) var3.next();
-            if (c.getEstado().getEstado().equalsIgnoreCase("PENDIENTE POR COBRAR")) {
-                total = total + 1;
-            }
-        }
-
-        return total;
     }
 
     @GetMapping({"/clientes/tiempos-reportados/{fechaInicio}/{fechaFin}/{clientesString}"})
@@ -380,36 +290,7 @@ public class ReporteAppController {
         }
     }
 
-    @GetMapping({"/proyectos/tiempos-reportados/{fechaInicio}/{fechaFin}/{proyectosString}"})
-    public ResponseEntity<?> getReportesProyectoRecurso(@PathVariable String fechaInicio, @PathVariable String fechaFin,
-                                                        @PathVariable String proyectosString) {
-        LocalDate fechaI = this.stringToLocalDate(fechaInicio);
-        LocalDate fechaF = this.stringToLocalDate(fechaFin);
-        String[] proyectosArray = proyectosString.split(",");
-        List<Proyecto> proyectos = this.getProyectosByArray(proyectosArray);
-        List<ReporteProyectoRecurso> reportes = new ArrayList();
-        List<Empleado> empleados = this.empleadoService.getEmpleado();
-        Iterator var10 = empleados.iterator();
-
-        while (var10.hasNext()) {
-            Empleado e = (Empleado) var10.next();
-            Iterator var12 = proyectos.iterator();
-
-            while (var12.hasNext()) {
-                Proyecto p = (Proyecto) var12.next();
-                if (this.validExistsReporteTiempoEmpleadoAndProyectoAndFecha(e, p, fechaI, fechaF)) {
-                    ReporteProyectoRecurso reporte = new ReporteProyectoRecurso();
-                    reporte.setProyecto(p.getNombre());
-                    reporte.setDescripcion(p.getDescripcion());
-                    reporte.setRecurso(e.getNombre());
-                    reporte.setHorasReportadas(this.getTotalHorasReportesProyectoRecurso(e, p, fechaI, fechaF));
-                    reportes.add(reporte);
-                }
-            }
-        }
-
-        return ResponseEntity.ok(reportes);
-    }
+    
 
     @GetMapping({"/tiempos-reportados/empleados-pendientes/{fechaInicio}/{fechaFin}"})
     public ResponseEntity<?> getEmpleadosPendientesReporteTiempo(@PathVariable String fechaInicio,

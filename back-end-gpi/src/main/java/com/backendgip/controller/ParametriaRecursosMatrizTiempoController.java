@@ -21,13 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backendgip.model.LogSistema;
 import com.backendgip.model.ParametriaRecursosMatrizTiempo;
-import com.backendgip.model.ProjectStatusReport;
 import com.backendgip.service.LogSistemaService;
 import com.backendgip.service.ParametriaRecursosMatrizTiempoService;
-import com.backendgip.model.EspecialidadRecurso;
-import com.backendgip.service.EspecialidadRecursoService;
-import com.backendgip.model.PerfilesRecurso;
-import com.backendgip.service.PerfilesRecursoService;
 
 @RestController
 @Transactional
@@ -39,12 +34,6 @@ public class ParametriaRecursosMatrizTiempoController {
 
     @Autowired
     private LogSistemaService logService;
-
-    @Autowired
-    private EspecialidadRecursoService especialidadRecursoService;
-
-    @Autowired
-    private PerfilesRecursoService perfilesRecursoService;
 
     public ParametriaRecursosMatrizTiempoController() {
     }
@@ -101,7 +90,6 @@ public class ParametriaRecursosMatrizTiempoController {
             LogSistema log = new LogSistema();
             log.setAccion("CREATE");
             log.setFechaHora(new Date());
-            log.setTabla(ProjectStatusReport.class.toString());
             log.setIdAccion(parametriaRecursosNueva.getId());
             log.setDescripcion(parametriaRecursosNueva.toString());
             this.logService.saveLog(log);

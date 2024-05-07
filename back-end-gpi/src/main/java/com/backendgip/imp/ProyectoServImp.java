@@ -10,7 +10,6 @@ import com.backendgip.model.Cliente;
 import com.backendgip.model.ComponenteDesarrollo;
 import com.backendgip.model.Empleado;
 import com.backendgip.model.EstadoProyecto;
-import com.backendgip.model.ProjectStatusReport;
 import com.backendgip.model.Proyecto;
 import com.backendgip.model.RecursoActividad;
 import com.backendgip.model.ReporteTiempo;
