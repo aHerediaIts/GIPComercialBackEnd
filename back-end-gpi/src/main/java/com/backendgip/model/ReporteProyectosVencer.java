@@ -5,12 +5,9 @@ import java.util.List;
 public class ReporteProyectosVencer {
 
  private Proyecto proyecto;
-    private RecursoActividad recursoActividad;
+private RecursoActividad recursoActividad;
 
-    // Constructor
- 
-
-    // Getters y Setters (opcional, dependiendo de tus necesidades)
+  
     public Proyecto getProyecto() {
         return proyecto;
     }

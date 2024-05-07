@@ -236,19 +236,36 @@ public class SeguimientoReportesController {
 	
 	@GetMapping("/reporte/actividad-proyecto-vencer/{fechaInicio}/{fechaFin}/{rf_proyecto}")
 	public List<ActividadProyectoVencer> getActividadesProyectoVencer(
-			@PathVariable String rf_proyecto, @PathVariable String fechaInicio, @PathVariable String fechaFin) {
+		@PathVariable String rf_proyecto,
+		@PathVariable String fechaInicio,
+		@PathVariable String fechaFin
+	) {
+		// Obtener recursos de actividad según los criterios de filtro
+		List<RecursoActividad> recursosActividad = buscarActividades(rf_proyecto, fechaInicio, fechaFin);
+	
+		// Lista para almacenar las actividades de proyecto que cumplen con los criterios
 		List<ActividadProyectoVencer> actividadesProyectoVencer = new ArrayList<>();
 	
-		List<RecursoActividad> recursosActividad = buscarActividades(rf_proyecto, fechaInicio, fechaFin);
-		
 		// Iterar sobre los recursos de actividad
 		for (RecursoActividad recursoActividad : recursosActividad) {
 			// Obtener el proyecto asociado al recurso de actividad
 			Proyecto proyecto = recursoActividad.getActividad().getProyecto();
-			// Agregar la actividad de proyecto junto con el recurso de actividad a la lista de resultados
-			actividadesProyectoVencer.add(new ActividadProyectoVencer(proyecto, recursoActividad));
+			// Verificar si el proyecto coincide con el filtro de rf_proyecto
+			if ("VACIO".equals(rf_proyecto) || proyecto.getRfProyecto().equals(rf_proyecto)) {
+				// Verificar si la fecha de inicio de la actividad está dentro del rango especificado
+				LocalDate fechaInicioActividad = recursoActividad.getActividad().getFechaInicio();
+				LocalDate fechaFinActividad = recursoActividad.getActividad().getFechaFin();
+				LocalDate fechaInicioFiltro = LocalDate.parse(fechaInicio);
+				LocalDate fechaFinFiltro = LocalDate.parse(fechaFin);
+				if (fechaInicioActividad.isEqual(fechaInicioFiltro) || fechaInicioActividad.isAfter(fechaInicioFiltro)) {
+					if (fechaFinActividad.isEqual(fechaFinFiltro) || fechaFinActividad.isBefore(fechaFinFiltro)) {
+						// Agregar la actividad de proyecto junto con el recurso de actividad a la lista de resultados
+						actividadesProyectoVencer.add(new ActividadProyectoVencer(proyecto, recursoActividad));
+					}
+				}
+			}
 		}
-		
+	
 		return actividadesProyectoVencer;
 	}
 	
