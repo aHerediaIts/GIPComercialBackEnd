@@ -200,10 +200,12 @@ public class SeguimientoReportesController {
             for (ReporteTiempo reporte : reportes) {
                 ValorTotalRecurso valorTotalRecurso = new ValorTotalRecurso();
                 valorTotalRecurso.setReporteTiempo(reporte);
+				valorTotalRecurso.setTotalHoras(reporte.getHoras());
                 for (ParametriaRecursosMatrizTiempo parametria : ParametriaRecursosMatrizTiempo) {
-                    if (reporte.getEmpleado().equals(parametria.getEmpleado())) {
-                        double total = parametria.getTarifaHora() * reporte.getHoras();
+                    if (reporte.getEmpleado().equals(parametria.getEmpleado()) && (reporte.getProyecto().getCliente().equals(parametria.getCliente()))) {
+						double total = parametria.getTarifaHora() * reporte.getHoras();
                         valorTotalRecurso.setTotal(total);
+						valorTotalRecurso.setTarifa(parametria.getTarifaHora());
                         break; 
                     }
                 }
@@ -217,8 +219,9 @@ public class SeguimientoReportesController {
             for (ReporteTiempo reporte : reportes) {
                 ValorTotalRecurso valorTotalRecurso = new ValorTotalRecurso();
                 valorTotalRecurso.setReporteTiempo(reporte);
+				valorTotalRecurso.setTotalHoras(reporte.getHoras());
                 for (ParametriaRecursosMatrizTiempo parametria : ParametriaRecursosMatrizTiempo) {
-                    if (reporte.getEmpleado().equals(parametria.getEmpleado())) {
+                    if (reporte.getEmpleado().equals(parametria.getEmpleado()) && (reporte.getProyecto().getCliente().equals(parametria.getCliente()))) {
                         double total = parametria.getTarifaHora() * reporte.getHoras();
                         valorTotalRecurso.setTotal(total);
                         break; 
